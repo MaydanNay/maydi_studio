@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Loader2, Terminal, X } from 'lucide-react'
+import { Loader2, X } from 'lucide-react'
 import type { LeadContext } from '../lib/leads'
 import { loadRoastSession, saveRoastSession } from '../lib/roastStorage'
 import { RoastResultModal } from './RoastResultModal'
+import { LineReveal, WordReveal } from './MotionText'
 
 type RoastObjection = {
   id: string
@@ -434,150 +435,145 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
   }
 
   return (
-    <section id="ai-roaster" className="border-t border-zinc-800 bg-[#09090B]">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <div className="mb-10 max-w-2xl">
-          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
-            Lead Magnet / AI Tool
-          </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
-            Сомневаетесь в конверсии своего сайта? Прожарьте его прямо сейчас.
+    <section id="ai-roaster" className="section-shell relative overflow-x-clip">
+      <div className="page-columns" aria-hidden />
+
+      <div className="relative z-10 w-full py-16 md:py-24">
+        <header className="mb-10 flex flex-col gap-4 px-5 md:mb-14 md:flex-row md:items-end md:justify-between md:px-8">
+          <h2 className="max-w-[18ch] font-sans text-[clamp(1.85rem,4.6vw,3.4rem)] font-medium uppercase leading-[1.02] tracking-[0.04em] text-[#111111]">
+            <WordReveal text="Сомневаетесь в конверсии?" delay={0.05} stagger={0.045} />
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-zinc-400">
-            Введите ссылку на ваш лендинг или текст оффера — наша нейросеть за 15 секунд найдёт 3
-            главные причины, почему клиенты уходят без покупки.
+          <p className="shrink-0 font-sans text-[12px] font-medium uppercase tracking-[0.08em] text-[#6b6b6b] md:pb-1 md:text-right">
+            <LineReveal delay={0.25}>прожарьте сайт.</LineReveal>
           </p>
-        </div>
+        </header>
 
-        <div className="overflow-hidden border border-zinc-800 bg-[#09090B]">
-          <div className="flex items-center justify-between gap-3 border-b border-zinc-800 px-3 py-3 sm:px-4">
-            <div className="flex min-w-0 items-center gap-2">
-              <Terminal size={14} className="shrink-0 text-zinc-500" />
-              <span className="truncate font-mono text-[10px] text-zinc-500 sm:text-[11px]">
-                maydi@mimora — roast_engine v1.3
-              </span>
-            </div>
-            <div className="flex shrink-0 gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-              <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-            </div>
-          </div>
+        {/* 4 cols = page-columns 25/50/75 — form spans first two */}
+        <div className="page-grid items-start">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.65, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col px-5 py-2 md:col-span-2 md:px-8"
+          >
+            <p className="mb-8 font-sans text-[13px] font-medium leading-[1.6] text-[#111111]">
+              <span className="mr-2 inline-block h-1.5 w-1.5 translate-y-[-1px] bg-[#111111]" aria-hidden />
+              Запустить AI-прожарку
+            </p>
 
-          <div className="p-3 sm:p-6">
             <label
               htmlFor="roast-input"
-              className="mb-2 block font-mono text-[11px] uppercase tracking-wider text-zinc-600"
+              className="mb-3 block font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.16em] text-[#6b6b6b]"
             >
-              input_url || offer_copy
+              url || offer_copy
             </label>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
-              <input
-                id="roast-input"
-                type="text"
-                inputMode="url"
-                autoComplete="url"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !loading) void handleRoast()
-                }}
-                placeholder="https://maydi.net/ или maydi.net"
-                disabled={loading}
-                className="min-w-0 w-full flex-1 border border-zinc-800 bg-zinc-950 px-3 py-3 font-mono text-sm text-zinc-50 placeholder:text-zinc-600 transition-colors focus:border-zinc-500 focus:outline-none disabled:opacity-60 sm:px-4"
-              />
+
+            <input
+              id="roast-input"
+              type="text"
+              inputMode="url"
+              autoComplete="url"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !loading) void handleRoast()
+              }}
+              placeholder="https://maydi.net/ или текст оффера"
+              disabled={loading}
+              className="w-full border-b border-[#111111] bg-transparent pb-3 font-sans text-[14px] text-[#111111] placeholder:text-[#111111]/35 focus:outline-none disabled:opacity-50"
+            />
+
+            <div className="mt-6 flex flex-col gap-4">
               {loading ? (
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 border border-zinc-700 bg-transparent px-4 py-3 text-sm font-medium text-zinc-50 transition-colors hover:border-zinc-500 hover:bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:w-auto sm:px-5"
+                  className="inline-flex w-full items-center justify-center gap-2 border border-[#111111] bg-transparent px-4 py-3.5 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition-opacity hover:opacity-55 focus:outline-none"
                 >
-                  <X size={16} className="shrink-0" />
+                  <X size={15} className="shrink-0" strokeWidth={1.5} />
                   Отмена
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => void handleRoast()}
-                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 bg-zinc-50 px-4 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B] sm:w-auto sm:px-5"
+                  className="inline-flex w-full items-center justify-center bg-[#111111] px-4 py-3.5 text-[12px] font-medium uppercase tracking-[0.08em] text-[#f2f2f2] transition-opacity hover:opacity-80 focus:outline-none"
                 >
-                  <Zap size={16} className="shrink-0" />
-                  <span className="text-center leading-snug">Запустить AI-прожарку</span>
+                  Запустить
                 </button>
               )}
-            </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-4">
-              <button
-                type="button"
-                onClick={() => setShowIcp((v) => !v)}
-                disabled={loading}
-                className="font-mono text-[11px] uppercase tracking-wider text-zinc-600 transition-colors hover:text-zinc-400 disabled:opacity-60"
-              >
-                {showIcp ? '▾' : '▸'} icp_context // опционально
-              </button>
-              <label className="inline-flex cursor-pointer items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-zinc-600">
-                <input
-                  type="checkbox"
-                  checked={wowMode}
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <button
+                  type="button"
+                  onClick={() => setShowIcp((v) => !v)}
                   disabled={loading}
-                  onChange={(e) => setWowMode(e.target.checked)}
-                  className="h-3.5 w-3.5 accent-zinc-50"
-                />
-                <span className={wowMode ? 'text-zinc-300' : undefined}>
-                  wow_mode // gpt-4o · two-pass
-                </span>
-              </label>
-            </div>
-            <AnimatePresence initial={false}>
-              {showIcp && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
+                  className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.12em] text-[#6b6b6b] transition-colors hover:text-[#111111] disabled:opacity-50"
                 >
-                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                    <input
-                      type="text"
-                      value={niche}
-                      onChange={(e) => setNiche(e.target.value)}
-                      disabled={loading}
-                      placeholder="ниша: B2B EdTech"
-                      className="border border-zinc-800 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-zinc-50 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
-                    />
-                    <select
-                      value={buyerRole}
-                      onChange={(e) => setBuyerRole(e.target.value as BuyerRole | '')}
-                      disabled={loading}
-                      className="border border-zinc-800 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-zinc-50 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
-                    >
-                      <option value="">ЛПР (buyer)</option>
-                      {BUYER_ROLES.filter(Boolean).map((role) => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      type="text"
-                      value={avgCheck}
-                      onChange={(e) => setAvgCheck(e.target.value)}
-                      disabled={loading}
-                      placeholder="чек: 80 000₽/мес"
-                      className="border border-zinc-800 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-zinc-50 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  {showIcp ? '▾' : '▸'} icp_context
+                </button>
+                <label className="inline-flex cursor-pointer items-center gap-2 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.12em] text-[#6b6b6b]">
+                  <input
+                    type="checkbox"
+                    checked={wowMode}
+                    disabled={loading}
+                    onChange={(e) => setWowMode(e.target.checked)}
+                    className="h-3 w-3 appearance-none border border-[#111111]/45 bg-transparent checked:bg-[#111111]"
+                  />
+                  <span className={wowMode ? 'text-[#111111]' : undefined}>wow_mode</span>
+                </label>
+              </div>
 
-            <p className="mt-3 text-center text-xs text-zinc-500">
-              * Без регистрации. Отчёт откроется в модалке + .MD файл.
-            </p>
+              <AnimatePresence initial={false}>
+                {showIcp && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid gap-3 pt-1 sm:grid-cols-3">
+                      <input
+                        type="text"
+                        value={niche}
+                        onChange={(e) => setNiche(e.target.value)}
+                        disabled={loading}
+                        placeholder="ниша: B2B EdTech"
+                        className="border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] placeholder:text-[#111111]/35 focus:border-[#111111] focus:outline-none disabled:opacity-50"
+                      />
+                      <select
+                        value={buyerRole}
+                        onChange={(e) => setBuyerRole(e.target.value as BuyerRole | '')}
+                        disabled={loading}
+                        className="border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] focus:border-[#111111] focus:outline-none disabled:opacity-50"
+                      >
+                        <option value="">ЛПР (buyer)</option>
+                        {BUYER_ROLES.filter(Boolean).map((role) => (
+                          <option key={role} value={role}>
+                            {role}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        value={avgCheck}
+                        onChange={(e) => setAvgCheck(e.target.value)}
+                        disabled={loading}
+                        placeholder="чек: 80 000₽/мес"
+                        className="border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] placeholder:text-[#111111]/35 focus:border-[#111111] focus:outline-none disabled:opacity-50"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {error && (
-              <p className="mt-3 font-mono text-xs text-zinc-400" role="alert">
+              <p
+                className="mt-5 font-[family-name:var(--font-jetbrains)] text-[11px] leading-relaxed text-[#8a3a3a]"
+                role="alert"
+              >
                 {error}
               </p>
             )}
@@ -589,9 +585,9 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0 }}
-                  className="mt-6 overflow-hidden border border-zinc-800 bg-zinc-950 p-4 font-mono text-xs text-zinc-500"
+                  className="mt-6 overflow-hidden font-[family-name:var(--font-jetbrains)] text-[11px] text-[#6b6b6b]"
                 >
-                  <p className="mb-2 flex items-center gap-2 text-zinc-600">
+                  <p className="mb-2 flex items-center gap-2">
                     <Loader2 size={12} className="animate-spin" />
                     running…
                   </p>
@@ -601,7 +597,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
                       <motion.p
                         key={line}
                         initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: isLast ? 1 : 0.55, y: 0 }}
+                        animate={{ opacity: isLast ? 1 : 0.45, y: 0 }}
                         transition={{ duration: 0.25 }}
                         className={isLast ? 'cursor-blink mt-1 first:mt-0' : 'mt-1 first:mt-0'}
                       >
@@ -617,23 +613,48 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
                   key="result-ready"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-6 flex flex-col gap-3 border border-zinc-800 bg-zinc-950 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="mt-6 flex flex-col gap-3"
                 >
-                  <p className="font-mono text-xs text-zinc-500">
-                    roast_complete · {result.objections.length} objections ·{' '}
-                    {result.mode || 'standard'}
+                  <p className="font-[family-name:var(--font-jetbrains)] text-[11px] uppercase tracking-[0.1em] text-[#6b6b6b]">
+                    ready · {result.objections.length} · {result.mode || 'standard'}
                   </p>
                   <button
                     type="button"
                     onClick={() => setResultOpen(true)}
-                    className="inline-flex items-center justify-center bg-zinc-50 px-4 py-2.5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B]"
+                    className="inline-flex items-center justify-center border border-[#111111] bg-transparent px-4 py-2.5 text-[12px] font-medium uppercase tracking-[0.06em] text-[#111111] transition-opacity hover:opacity-55 focus:outline-none"
                   >
                     Открыть отчёт
                   </button>
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+
+            <p className="mt-12 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.12em] text-[#6b6b6b]">
+              без регистрации · отчёт в модалке + .md
+            </p>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className="px-5 py-2 font-sans text-[13px] font-medium leading-[1.85] tracking-[0.02em] text-[#111111] md:px-6 md:text-[14px]"
+          >
+            Ссылка или текст оффера — за 15 секунд три главные причины, почему клиенты уходят без
+            покупки. Mimora читает лендинг как ЛПР: оффер, доказательство, цена, CTA.
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.65, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            className="px-5 py-2 font-sans text-[13px] font-medium leading-[1.85] tracking-[0.02em] text-[#111111] md:px-6 md:pr-8 md:text-[14px]"
+          >
+            Без регистрации. Результат сразу в модалке — и можно скачать .md-отчёт для команды до
+            запуска трафика.
+          </motion.p>
         </div>
       </div>
 

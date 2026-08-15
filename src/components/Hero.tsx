@@ -1,118 +1,139 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
-import { HeroNodeCanvas } from './HeroNodeCanvas'
+import { forwardRef, useEffect, useRef, type RefObject } from 'react'
+import butterflySrc from '../assets/butterfly.mp4'
+import { SmartScanner } from './SmartScanner'
+import { FadeUp, LetterReveal, WordReveal } from './MotionText'
 
 type HeroProps = {
   onBookCall: () => void
 }
 
-const techBar = [
-  'Powered by mimora AI Engine',
-  '100+ Synthetic ICP Matrix',
-  '0% Zero Regression',
-]
+const LoopVideo = forwardRef<HTMLVideoElement, { className?: string }>(
+  function LoopVideo({ className }, ref) {
+    const innerRef = useRef<HTMLVideoElement>(null)
 
-function useIsDesktopGraph() {
-  const [enabled, setEnabled] = useState(false)
+    useEffect(() => {
+      const video =
+        (ref && typeof ref !== 'function' ? ref.current : null) ?? innerRef.current
+      if (!video) return
 
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    const sync = () => setEnabled(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
+      let raf = 0
+      let cancelled = false
 
-  return enabled
-}
+      const tick = () => {
+        if (cancelled) return
+        raf = requestAnimationFrame(tick)
 
-export function Hero({ onBookCall }: HeroProps) {
-  const showGraph = useIsDesktopGraph()
+        const duration = video.duration
+        if (!Number.isFinite(duration) || duration < 0.3 || video.readyState < 2) return
+
+        const t = video.currentTime
+        const wrapAt = duration - 0.12
+        const speedFrom = duration * 0.7
+
+        if (t >= wrapAt) {
+          video.playbackRate = 1
+          video.currentTime = 0.03
+          return
+        }
+
+        if (t >= speedFrom) {
+          const p = Math.min(1, (t - speedFrom) / (wrapAt - speedFrom))
+          video.playbackRate = 1 + p * 1.1
+        } else if (video.playbackRate !== 1) {
+          video.playbackRate = 1
+        }
+      }
+
+      const start = () => {
+        if (cancelled) return
+        video.playbackRate = 1
+        void video.play().catch(() => {})
+        raf = requestAnimationFrame(tick)
+      }
+
+      if (video.readyState >= 2) start()
+      else video.addEventListener('loadeddata', start, { once: true })
+
+      return () => {
+        cancelled = true
+        cancelAnimationFrame(raf)
+      }
+    }, [ref])
+
+    return (
+      <video
+        ref={(node) => {
+          innerRef.current = node
+          if (typeof ref === 'function') ref(node)
+          else if (ref) ref.current = node
+        }}
+        className={className}
+        src={butterflySrc}
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden
+      />
+    )
+  },
+)
+
+export function Hero({ onBookCall: _onBookCall }: HeroProps) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
 
   return (
-    <section
-      id="hero"
-      className="relative flex min-h-[85vh] w-full flex-col justify-center overflow-hidden pt-14"
-    >
-      {showGraph ? <HeroNodeCanvas /> : null}
+    <section id="hero" className="relative w-full bg-[#F3F3F3] text-white">
+      <div
+        ref={stageRef}
+        className="relative h-svh min-h-svh w-full overflow-hidden bg-[#F3F3F3]"
+      >
+        <LoopVideo
+          ref={videoRef}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
+        />
 
-      <div className="pointer-events-none relative z-10 mx-auto w-full max-w-6xl px-6 py-20 sm:py-24 lg:px-12 lg:py-28">
-        <div className="pointer-events-auto max-w-3xl text-left">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
-            className="mb-8 inline-flex items-center gap-2 border border-zinc-800 bg-zinc-950/80 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400"
-          >
-            <span className="h-1.5 w-1.5 animate-pulse-dot bg-zinc-50" />
-            AI-Powered Pre-Flight Audience Testing
-          </motion.div>
+        <span
+          className="pointer-events-none absolute left-5 top-6 z-20 h-2 w-2 rounded-full bg-[#F3F3F3] md:left-8 md:top-8"
+          aria-hidden
+        />
+        <span
+          className="pointer-events-none absolute right-5 top-6 z-20 h-2 w-2 rounded-full bg-[#F3F3F3] md:right-8 md:top-8"
+          aria-hidden
+        />
 
-          <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.08 }}
-            className="text-3xl font-semibold leading-[1.15] tracking-tight text-zinc-50 sm:text-4xl md:text-5xl lg:text-[3.15rem]"
-          >
-            Создаём сайты, воронки, креативы с предварительным тестом ЦА в AI-симуляции.
-          </motion.h1>
+        <h1 className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex w-full items-end justify-between font-[family-name:var(--font-brand)] text-[16.5vw] font-extrabold leading-[0.72] text-[#F3F3F3]">
+          <LetterReveal text="MAYDI" className="flex w-full items-end justify-between" delay={0.35} />
+        </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.16 }}
-            className="mt-6 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg"
-          >
-            До запуска трафика прогоняем ваш оффер, цены и креативы через 100 синтетических ЛПР
-            в платформе mimora и устраняем 95% возражений. Сдача проекта под ключ за 7 дней.
-          </motion.p>
+        <SmartScanner
+          videoRef={videoRef as RefObject<HTMLVideoElement | null>}
+          containerRef={stageRef as RefObject<HTMLElement | null>}
+        />
+      </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.24 }}
-            className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
-          >
-            <a
-              href="#ai-roaster"
-              className="inline-flex items-center justify-center gap-2 bg-zinc-50 px-5 py-3.5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
-            >
-              Получить бесплатный AI-аудит сайта
-              <ArrowRight size={16} />
-            </a>
-            <button
-              type="button"
-              onClick={onBookCall}
-              className="inline-flex items-center justify-center gap-2 border border-zinc-700 px-5 py-3.5 text-sm font-medium text-zinc-50 transition-colors hover:border-zinc-50 hover:bg-zinc-50/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
-            >
-              Забронировать стратегический разбор
-              <ArrowUpRight size={16} className="text-zinc-500" />
-            </button>
-          </motion.div>
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-16 border-t border-zinc-900 pt-8"
-        >
-          <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
-            Social Proof / Tech Stack
-          </p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {techBar.map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-3 border border-zinc-800/80 bg-zinc-950/50 px-4 py-3"
-              >
-                <span className="font-mono text-[10px] text-zinc-600">▸</span>
-                <span className="font-mono text-xs tracking-wide text-zinc-400">{item}</span>
-              </div>
-            ))}
+      <div className="blueprint relative -mt-px text-[#111111]">
+        <div className="page-columns" aria-hidden />
+        <div className="relative z-10 grid min-h-[70vh] grid-cols-1 px-6 py-24 md:grid-cols-4 md:px-0 md:py-32">
+          <div className="flex flex-col items-center justify-center text-center md:col-span-2 md:col-start-2 md:px-10">
+            <FadeUp delay={0.05}>
+              <p className="mb-8 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.28em] text-[#6b6b6b]">
+                Maydi Studio
+              </p>
+            </FadeUp>
+            <p className="max-w-[36rem] font-sans text-[13px] font-medium uppercase leading-[1.85] tracking-[0.06em] text-[#111111] md:text-[15px]">
+              <WordReveal
+                text="Мы собираем сайты, воронки и креативы для B2B. Каждую гипотезу тестируем на синтетической ЦА в AI-симуляции mimora — до запуска трафика. Вы работаете напрямую с фаундерами, без агентской прослойки."
+                delay={0.1}
+                stagger={0.025}
+              />
+            </p>
+            <FadeUp delay={0.45} y={10}>
+              <span className="mt-12 inline-block h-2 w-2 rounded-full bg-black" aria-hidden />
+            </FadeUp>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

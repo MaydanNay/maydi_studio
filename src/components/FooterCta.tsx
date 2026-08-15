@@ -1,65 +1,131 @@
-import { ArrowRight } from 'lucide-react'
+import { motion } from 'framer-motion'
+import butterflyFooter from '../assets/butterfly_footer.png'
 import { ContactsHover } from './ContactsHover'
+import { navigate } from '../lib/nav'
 
 type FooterCtaProps = {
-  onBookCall: () => void
+  onBookCall?: () => void
 }
 
-export function FooterCta({ onBookCall }: FooterCtaProps) {
+const ease = [0.22, 1, 0.36, 1] as const
+
+const sections = [
+  {
+    title: 'Разделы',
+    links: [
+      { href: '#problem', label: 'Проблема' },
+      { href: '#solution', label: 'Метод' },
+      { href: '#how-it-works', label: 'Как работает' },
+      { href: '#faq', label: 'FAQ' },
+    ],
+  },
+  {
+    title: 'Студия',
+    links: [
+      { href: '/founders', label: 'Фаундеры' },
+      { href: '#cases', label: 'Кейсы' },
+      { href: '#ai-roaster', label: 'AI-прожарка' },
+      { href: '#contact', label: 'Контакт' },
+    ],
+  },
+  {
+    title: 'Проекты',
+    links: [
+      { href: '/projects/mimora', label: 'mimora' },
+      { href: '/projects/origanima', label: 'origanima' },
+      { href: 'https://maydi.net', label: 'maydi.net', external: true },
+      { href: 'https://mimora.io/', label: 'mimora.io', external: true },
+    ],
+  },
+] as const
+
+function FooterLink({
+  href,
+  label,
+  external,
+}: {
+  href: string
+  label: string
+  external?: boolean
+}) {
   return (
-    <section className="border-t border-zinc-800">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <div className="relative overflow-hidden border border-zinc-800 bg-zinc-950 px-6 py-14 text-center sm:px-12 sm:py-20">
-          <div className="pointer-events-none absolute inset-0 opacity-30 grid-bg" />
-          <div className="relative">
-            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
-              Final CTA
-            </p>
-            <h2 className="mx-auto max-w-xl text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
-              Готовы перестать сливать бюджет на слепые гипотезы?
-            </h2>
-            <button
-              type="button"
-              onClick={onBookCall}
-              className="mt-8 inline-flex items-center justify-center gap-2 bg-zinc-50 px-6 py-3.5 text-sm font-medium text-zinc-950 transition-colors hover:bg-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
-            >
-              Забронировать 15-минутный созвон с фаундерами
-              <ArrowRight size={16} />
-            </button>
-          </div>
-        </div>
+    <a
+      href={href}
+      {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+      onClick={(e) => {
+        if (external || href.startsWith('http')) return
+        e.preventDefault()
+        navigate(href)
+      }}
+      className="font-sans text-[12px] font-medium uppercase tracking-[0.06em] text-[#111111] transition-opacity hover:opacity-45 md:text-[13px]"
+    >
+      {label}
+      {external ? ' ↗' : ''}
+    </a>
+  )
+}
+
+export function FooterCta({ onBookCall: _onBookCall }: FooterCtaProps) {
+  return (
+    <footer id="contact" className="section-shell relative overflow-hidden">
+      <div className="page-columns" aria-hidden />
+
+      {/* Butterfly — full width, lower */}
+      <div className="relative z-[5] mx-auto flex min-h-[56vh] w-full items-end justify-center md:min-h-[62vh]">
+        <motion.img
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: 1, ease }}
+          src={butterflyFooter}
+          alt=""
+          className="pointer-events-none w-full max-w-none translate-y-[58%] select-none object-contain object-bottom"
+          draggable={false}
+          aria-hidden
+        />
       </div>
 
-      <footer className="border-t border-zinc-800">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p className="font-mono text-xs text-zinc-600">
-            © 2026 maydiStudio / mimora / Republic of Kazakhstan.
-          </p>
-          <nav className="flex flex-wrap items-center gap-6">
-            <a href="#hero" className="font-mono text-xs text-zinc-500 transition-colors hover:text-zinc-50">
-              Home
-            </a>
-            <a href="#pricing" className="font-mono text-xs text-zinc-500 transition-colors hover:text-zinc-50">
-              Pricing
-            </a>
-            <a href="#ai-roaster" className="font-mono text-xs text-zinc-500 transition-colors hover:text-zinc-50">
-              AI Roast
-            </a>
-            <a href="#faq" className="font-mono text-xs text-zinc-500 transition-colors hover:text-zinc-50">
-              FAQ
-            </a>
-            <a
-              href="https://maydi.net"
-              target="_blank"
-              rel="noreferrer"
-              className="font-mono text-xs text-zinc-500 transition-colors hover:text-zinc-50"
-            >
-              Кейсы
-            </a>
-            <ContactsHover variant="footer" placement="top" />
-          </nav>
+      {/* Links — slightly higher */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: 0.65, ease }}
+        className="absolute inset-x-0 top-[18%] z-20 mx-auto w-full max-w-[1400px] px-5 md:top-[20%] md:px-8"
+      >
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:grid-cols-4">
+          {sections.map((section) => (
+            <div key={section.title} className="min-w-0">
+              <p className="mb-4 border-b border-[#111111] pb-3 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.16em] text-[#6b6b6b]">
+                {section.title}
+              </p>
+              <ul className="flex flex-col gap-2.5">
+                {section.links.map((link) => (
+                  <li key={link.href + link.label}>
+                    <FooterLink
+                      href={link.href}
+                      label={link.label}
+                      external={'external' in link ? link.external : false}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          <div className="col-span-2 flex flex-col justify-between gap-6 sm:col-span-3 md:col-span-1">
+            <div>
+              <p className="mb-4 border-b border-[#111111] pb-3 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.16em] text-[#6b6b6b]">
+                Связь
+              </p>
+              <ContactsHover variant="footer" placement="bottom" />
+            </div>
+            <p className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.14em] text-[#6b6b6b]">
+              © 2026 maydiStudio
+            </p>
+          </div>
         </div>
-      </footer>
-    </section>
+      </motion.div>
+    </footer>
   )
 }

@@ -110,7 +110,7 @@ export function RoastResultModal({
             role="dialog"
             aria-modal="true"
             aria-labelledby="roast-result-title"
-            className="relative flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden border border-zinc-800 bg-[#09090B] sm:max-h-[90vh]"
+            className="relative flex max-h-[94vh] w-full max-w-5xl flex-col overflow-hidden border border-zinc-800 bg-[#1D1D1D] sm:max-h-[90vh]"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
@@ -168,7 +168,7 @@ export function RoastResultModal({
                   <button
                     type="button"
                     onClick={onDownload}
-                    className="inline-flex items-center justify-center gap-2 border border-zinc-700 bg-transparent px-4 py-3 text-sm font-medium text-zinc-50 transition-colors hover:border-zinc-500 hover:bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B]"
+                    className="inline-flex items-center justify-center gap-2 border border-zinc-700 bg-transparent px-4 py-3 text-sm font-medium text-zinc-50 transition-colors hover:border-zinc-500 hover:bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1D1D1D]"
                   >
                     {downloadSaved ? (
                       <>
@@ -185,7 +185,7 @@ export function RoastResultModal({
                   <button
                     type="button"
                     onClick={onCopy}
-                    className="inline-flex items-center justify-center gap-2 border border-zinc-700 bg-transparent px-4 py-3 text-sm font-medium text-zinc-50 transition-colors hover:border-zinc-500 hover:bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#09090B]"
+                    className="inline-flex items-center justify-center gap-2 border border-zinc-700 bg-transparent px-4 py-3 text-sm font-medium text-zinc-50 transition-colors hover:border-zinc-500 hover:bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1D1D1D]"
                   >
                     {copySaved ? (
                       <>
@@ -226,7 +226,7 @@ export function RoastResultModal({
                       onChange={(e) => setLeadName(e.target.value)}
                       disabled={leadSubmitting}
                       placeholder="Имя"
-                      className="w-full border border-zinc-700 bg-[#09090B] px-3 py-3 font-mono text-sm text-zinc-50 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
+                      className="w-full border border-zinc-700 bg-[#1D1D1D] px-3 py-3 font-mono text-sm text-zinc-50 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
                     />
                     <input
                       type="text"
@@ -234,7 +234,7 @@ export function RoastResultModal({
                       onChange={(e) => setLeadContact(e.target.value)}
                       disabled={leadSubmitting}
                       placeholder="Telegram / WhatsApp"
-                      className="w-full border border-zinc-700 bg-[#09090B] px-3 py-3 font-mono text-sm text-zinc-50 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
+                      className="w-full border border-zinc-700 bg-[#1D1D1D] px-3 py-3 font-mono text-sm text-zinc-50 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
                     />
                     {leadError && (
                       <p className="font-mono text-xs text-zinc-400" role="alert">

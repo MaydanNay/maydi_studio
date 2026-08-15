@@ -1,23 +1,23 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Minus } from 'lucide-react'
+import { LineReveal, motionEase, staggerItem } from './MotionText'
 
 const faqs = [
   {
-    q: 'Почему я должен доверять синтетическим AI-респондентам в mimora?',
-    a: 'Нейросеть не гадает и не выдаёт случайные ответы. Мы задаём синтетическим ЛПР более 1000+ параметров контекста вашей ниши (от бюджета и размера компании до реальных бизнес-болей) и проверяем семантическую точность (score ≥ 0.75). Это симуляция поведения реальных покупателей на основе поведенческих матриц.',
+    q: 'Почему доверять AI-респондентам mimora?',
+    a: 'Более 1000 параметров контекста ниши и семантическая точность score ≥ 0.75 — симуляция поведения реальных ЛПР.',
   },
   {
-    q: 'Как устроена оплата и этапы работы?',
-    a: 'Работаем по схеме: 70% предоплата перед стартом архитектурной сборки и 30% перед публикацией готовой воронки на вашем домене. Все сроки и обязательства жёстко фиксируются в договоре.',
+    q: 'Как устроена оплата?',
+    a: '70% предоплата перед стартом, 30% перед публикацией. Сроки фиксируются в договоре.',
   },
   {
-    q: 'На каком движке разрабатывается сайт-воронка?',
-    a: 'Никаких медленных конструкторов и тяжёлых шаблонов. Мы пишем чистый, молниеносный код на современном стеке (React / Vite / Next.js / Tailwind CSS), который загружается за миллисекунды и готов к высоким нагрузкам.',
+    q: 'На каком стеке сайт?',
+    a: 'React / Vite / Next.js / Tailwind — без конструкторов, загрузка за миллисекунды.',
   },
   {
-    q: 'Вы сами ведёте рекламные кампании в таргете после сдачи проекта?',
-    a: 'Мы — студия высокой конверсии с фиксированным сроком сдачи (7–10 дней). Мы собираем сайт, выстраиваем воронку и сдаём вам 3–5 готовых, стресс-протестированных в mimora рекламных связок и креативов. Запуск трафика вы можете осуществить самостоятельно или передать вашему текущему медиабайеру/таргетологу.',
+    q: 'Ведёте рекламу после сдачи?',
+    a: 'Сдаём 3–5 протестированных связок. Запуск — ваш или медиабайера.',
   },
 ]
 
@@ -25,45 +25,43 @@ export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (
-    <section id="faq" className="border-t border-zinc-800 bg-zinc-950">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <div className="mb-10 max-w-2xl sm:mb-12">
-          <p className="mb-3 inline-flex items-center gap-2 border border-zinc-800 bg-zinc-950/80 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400">
-            <span className="h-1.5 w-1.5 bg-zinc-50" />
-            Frequently Asked Questions
-          </p>
-          <h2 className="mt-6 text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
-            Вопросы по архитектуре, срокам и гарантиям
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-zinc-400">
-            Закрываем главные сомнения перед стартом работы. Без агентской воды.
-          </p>
-        </div>
+    <section id="faq" className="section-shell relative">
+      <div className="page-columns" aria-hidden />
 
-        <div className="border border-zinc-800">
+      <div className="page-grid relative z-10 py-20 md:py-28">
+        <h2 className="mb-10 px-5 font-sans text-[clamp(1.6rem,4.2vw,3.15rem)] font-medium uppercase leading-[1.05] tracking-[0.04em] text-[#111111] md:col-span-2 md:mb-0 md:px-8">
+          <LineReveal delay={0.05}>Вопросы</LineReveal>
+        </h2>
+
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+          }}
+          className="px-5 md:col-span-2 md:px-6 md:pr-8"
+        >
           {faqs.map((item, i) => {
             const isOpen = openIndex === i
             return (
-              <div
-                key={item.q}
-                className={i > 0 ? 'border-t border-zinc-800' : undefined}
-              >
+              <motion.div key={item.q} variants={staggerItem}>
                 <button
                   type="button"
                   aria-expanded={isOpen}
                   onClick={() => setOpenIndex(isOpen ? null : i)}
-                  className="flex w-full items-start justify-between gap-4 px-4 py-5 text-left transition-colors hover:bg-zinc-900/40 sm:px-6 sm:py-6 focus:outline-none focus-visible:bg-zinc-900/50"
+                  className="flex w-full items-start justify-between gap-5 py-5 text-left md:py-6"
                 >
-                  <span className="flex gap-3 sm:gap-4">
-                    <span className="mt-0.5 shrink-0 font-mono text-xs text-zinc-600">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <span className="text-sm font-medium leading-snug tracking-tight text-zinc-50 sm:text-base">
-                      {item.q}
-                    </span>
+                  <span className="font-sans text-[13px] font-medium uppercase leading-[1.45] tracking-[0.04em] text-[#111111] md:text-[15px]">
+                    {item.q}
                   </span>
-                  <span className="mt-0.5 shrink-0 text-zinc-500">
-                    {isOpen ? <Minus size={16} strokeWidth={1.5} /> : <Plus size={16} strokeWidth={1.5} />}
+                  <span
+                    className="mt-0.5 shrink-0 font-[family-name:var(--font-jetbrains)] text-[12px] text-[#6b6b6b] transition-transform duration-300"
+                    style={{ transform: isOpen ? 'rotate(45deg)' : 'none' }}
+                    aria-hidden
+                  >
+                    +
                   </span>
                 </button>
 
@@ -73,19 +71,19 @@ export function Faq() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.22, ease: 'easeInOut' }}
+                      transition={{ duration: 0.35, ease: motionEase }}
                       className="overflow-hidden"
                     >
-                      <p className="border-t border-zinc-800/60 px-4 pb-5 pt-4 text-sm leading-relaxed text-zinc-400 sm:px-6 sm:pb-6 sm:pl-[4.25rem] sm:pt-5">
+                      <p className="max-w-[42ch] pb-5 font-sans text-[13px] font-medium leading-[1.85] tracking-[0.02em] text-[#111111]/70 md:pb-6 md:text-[14px]">
                         {item.a}
                       </p>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
+              </motion.div>
             )
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

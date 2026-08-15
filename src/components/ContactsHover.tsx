@@ -71,7 +71,7 @@ export function ContactsHover({
 
   const triggerClass =
     variant === 'nav'
-      ? 'hidden items-center gap-1.5 border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-400 transition-colors hover:border-zinc-500 hover:text-zinc-50 sm:inline-flex'
+      ? 'hidden items-center gap-1.5 border border-white px-3 py-1.5 text-xs font-medium text-white sm:inline-flex'
       : variant === 'footer'
         ? 'inline-flex items-center gap-1 font-mono text-xs text-zinc-500 transition-colors hover:text-zinc-50'
         : 'inline-flex items-center gap-1 font-mono text-xs text-zinc-500 underline-offset-4 transition-colors hover:text-zinc-50 hover:underline'

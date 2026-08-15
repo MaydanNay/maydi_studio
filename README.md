@@ -1,3 +1,20 @@
+# запуск фронта
+  cd /home/diana/progects/maydi_studio
+  npm install
+  cp .env.example .env
+  npm run dev 
+
+# запуск ток фронт без ии
+  npm install && npm run dev  
+
+# запуск бэки  
+  cd /home/diana/progects/maydi_studio/backend-roaster
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install -r requirements.txt
+  cp .env.example .env
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.

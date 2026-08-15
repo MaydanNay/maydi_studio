@@ -1,89 +1,175 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 
 const highlights = [
-  <>
-    Создатели AI-платформы симуляции ЛПР <span className="text-zinc-50">mimora</span>
-  </>,
-  <>Работаем напрямую с фаундерами и ЛПР без посредников</>,
-  <>Сдача проектов под ключ с личным контролем качества</>,
+  'Создатели AI-платформы mimora',
+  'Работа напрямую с фаундерами и ЛПР',
+  'Сдача под ключ с личным контролем',
 ]
 
-export function Founders() {
-  const [imgFailed, setImgFailed] = useState(false)
+function coverCrop(
+  img: HTMLImageElement,
+  w: number,
+  h: number,
+): { sx: number; sy: number; sw: number; sh: number } {
+  const ir = img.width / img.height
+  const cr = w / h
+  if (ir > cr) {
+    const sw = img.height * cr
+    return { sx: (img.width - sw) / 2, sy: 0, sw, sh: img.height }
+  }
+  const sh = img.width / cr
+  return { sx: 0, sy: (img.height - sh) / 2, sw: img.width, sh }
+}
+
+function PixelReveal({ src, alt }: { src: string; alt: string }) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const doneRef = useRef(false)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const canvas = canvasRef.current
+    if (!wrap || !canvas) return
+
+    const img = new Image()
+    img.src = src
+    img.onerror = () => setFailed(true)
+
+    let raf = 0
+    const off = document.createElement('canvas')
+
+    const paint = (pixelSize: number) => {
+      const w = wrap.clientWidth
+      const h = wrap.clientHeight
+      if (w < 2 || h < 2 || !img.complete || img.naturalWidth === 0) return
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      canvas.width = Math.round(w * dpr)
+      canvas.height = Math.round(h * dpr)
+      canvas.style.width = `${w}px`
+      canvas.style.height = `${h}px`
+
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+
+      const crop = coverCrop(img, w, h)
+      const size = Math.max(1, pixelSize)
+      const pw = Math.max(1, Math.round(w / size))
+      const ph = Math.max(1, Math.round(h / size))
+      off.width = pw
+      off.height = ph
+      const octx = off.getContext('2d')
+      if (!octx) return
+      octx.imageSmoothingEnabled = false
+      octx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, pw, ph)
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.imageSmoothingEnabled = false
+      ctx.clearRect(0, 0, w, h)
+      ctx.drawImage(off, 0, 0, w, h)
+    }
+
+    const run = () => {
+      if (doneRef.current) return
+      doneRef.current = true
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        paint(1)
+        return
+      }
+
+      const from = 42
+      const duration = 1600
+      const t0 = performance.now()
+
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - t0) / duration)
+        const eased = 1 - (1 - t) ** 3
+        paint(from + (1 - from) * eased)
+        if (t < 1) raf = requestAnimationFrame(tick)
+        else paint(1)
+      }
+      raf = requestAnimationFrame(tick)
+    }
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return
+        if (img.complete) run()
+        else img.onload = run
+        io.disconnect()
+      },
+      { threshold: 0.2 },
+    )
+    io.observe(wrap)
+
+    const ro = new ResizeObserver(() => {
+      if (doneRef.current) paint(1)
+    })
+    ro.observe(wrap)
+
+    return () => {
+      io.disconnect()
+      ro.disconnect()
+      cancelAnimationFrame(raf)
+    }
+  }, [src])
+
+  if (failed) {
+    return (
+      <div className="flex h-full min-h-[320px] items-end bg-[#ececec] p-6">
+        <p className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.2em] text-[#6b6b6b]">
+          founders
+        </p>
+      </div>
+    )
+  }
 
   return (
-    <section id="founders" className="border-t border-zinc-800">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <div className="mb-10 max-w-2xl sm:mb-12">
-          <p className="mb-3 inline-flex items-center gap-2 border border-zinc-800 bg-zinc-950/80 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400">
-            <span className="h-1.5 w-1.5 bg-zinc-50" />
-            Founders & Architects
-          </p>
-          <h2 className="mt-6 text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
-            Инженеры и создатели технологии, а не агентские менеджеры.
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-zinc-400">
-            Мы лично проектируем архитектуру воронок и отвечаем за конверсию каждого проекта. Без
-            глухих телефонов и джунов на субподряде.
-          </p>
-        </div>
+    <div ref={wrapRef} className="relative h-full min-h-[50vh] w-full overflow-hidden bg-[#111111] md:min-h-0">
+      <canvas ref={canvasRef} className="h-full w-full grayscale" role="img" aria-label={alt} />
+    </div>
+  )
+}
 
+export function Founders() {
+  return (
+    <section id="founders" className="section-shell relative min-h-svh">
+      <div className="page-columns" aria-hidden />
+
+      <div className="relative z-10 grid min-h-svh grid-cols-1 pt-16 md:grid-cols-2">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.4 }}
-          className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col justify-center px-5 py-16 md:px-8 md:py-24 lg:px-12"
         >
-          {/* Photo — wider */}
-          <div className="relative aspect-[4/3] overflow-hidden border border-zinc-800 bg-zinc-900 md:col-span-8 md:aspect-[16/10] md:min-h-[380px]">
-            {!imgFailed ? (
-              <img
-                src="/founders.webp"
-                alt="Maydan & Diana — co-founders of maydiStudio"
-                className="absolute inset-0 h-full w-full object-cover grayscale contrast-125"
-                onError={() => setImgFailed(true)}
-              />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-900">
-                <div className="pointer-events-none absolute inset-0 opacity-40 grid-bg" />
-                <div className="relative flex gap-3">
-                  <span className="flex h-16 w-16 items-center justify-center border border-zinc-700 font-mono text-lg font-medium text-zinc-400">
-                    M
-                  </span>
-                  <span className="flex h-16 w-16 items-center justify-center border border-zinc-700 font-mono text-lg font-medium text-zinc-400">
-                    D
-                  </span>
-                </div>
-                <p className="relative font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
-                  public/founders.webp
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Bio — narrower, no outline */}
-          <div className="flex flex-col justify-center md:col-span-4">
-            <p className="mb-4 font-mono text-[11px] font-semibold uppercase leading-relaxed tracking-[0.12em] text-zinc-50 sm:text-xs">
-              MAYDAN & DIANA — CO-FOUNDERS, TECH LEAD & FRONTEND ARCHITECT
-            </p>
-            <p className="mb-6 text-sm leading-relaxed text-zinc-400">
-              «Мы — технические фаундеры и авторы AI-движка mimora. Устали смотреть, как классические
-              маркетинговые агентства сжигают бюджеты клиентов на слепые A/B-тесты. Объединили
-              глубокий инженерный опыт в Full-Stack разработке и собственную технологию симуляции
-              аудиторий, чтобы создавать воронки с предсказуемой конверсией.»
-            </p>
-            <ul className="space-y-2.5">
-              {highlights.map((item, i) => (
-                <li key={i} className="flex gap-2.5 text-sm leading-relaxed text-zinc-400">
-                  <span className="shrink-0 font-mono text-zinc-600">▸</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <p className="mb-5 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.18em] text-[#6b6b6b]">
+            Maydan & Diana
+          </p>
+          <h1 className="max-w-[12ch] font-sans text-[clamp(1.6rem,4.2vw,3.15rem)] font-medium uppercase leading-[1.05] tracking-[0.04em] text-[#111111]">
+            Инженеры и авторы технологии
+          </h1>
+          <p className="mt-6 max-w-[32rem] font-sans text-[13px] font-medium uppercase leading-[1.85] tracking-[0.06em] text-[#111111] md:text-[15px]">
+            Объединили инженерный опыт и симуляцию аудиторий, чтобы воронки работали с
+            предсказуемой конверсией — без слепых A/B-тестов на вашем бюджете.
+          </p>
+          <ul className="mt-10 flex flex-col gap-2">
+            {highlights.map((item) => (
+              <li
+                key={item}
+                className="font-[family-name:var(--font-jetbrains)] text-[11px] uppercase tracking-[0.08em] text-[#6b6b6b]"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
         </motion.div>
+
+        <div className="min-h-[50vh] border-[#111111] md:min-h-0 md:border-l">
+          <PixelReveal src="/founders.webp" alt="Maydan и Diana — co-founders maydiStudio" />
+        </div>
       </div>
     </section>
   )

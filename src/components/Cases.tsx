@@ -1,102 +1,142 @@
-import { ArrowUpRight } from 'lucide-react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
-
-const cases = [
-  {
-    id: '01',
-    industry: 'B2B SaaS',
-    title: 'Воронка под демо-заявку',
-    blurb: 'Структура страницы и оффер собраны под ЛПР до запуска трафика.',
-  },
-  {
-    id: '02',
-    industry: 'High-ticket услуги',
-    title: 'Лендинг под квалифицированный лид',
-    blurb: 'Копирайт и логика воронки заточены под длинный цикл сделки.',
-  },
-  {
-    id: '03',
-    industry: 'Product launch',
-    title: 'Pre-launch с тест-оффером',
-    blurb: 'Гипотезы прогнаны через симуляцию аудитории до рекламного бюджета.',
-  },
-] as const
+import { navigate } from '../lib/nav'
+import { projects } from '../lib/projects'
+import { FadeUp, LineReveal, staggerItem } from './MotionText'
 
 export function Cases() {
+  const previewRef = useRef<HTMLDivElement>(null)
+  const target = useRef({ x: 0, y: 0 })
+  const pos = useRef({ x: 0, y: 0 })
+  const size = useRef({ w: 360, h: 200 })
+  const [hover, setHover] = useState<number | null>(null)
+  const lastHover = useRef(0)
+
+  useEffect(() => {
+    let frame = 0
+    const tick = () => {
+      pos.current.x += (target.current.x - pos.current.x) * 0.14
+      pos.current.y += (target.current.y - pos.current.y) * 0.14
+      const el = previewRef.current
+      if (el) {
+        el.style.transform = `translate3d(${pos.current.x}px, ${pos.current.y}px, 0)`
+      }
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
+  const movePreview = (clientX: number, clientY: number, snap = false) => {
+    const { w, h } = size.current
+    let x = clientX + 22
+    let y = clientY + 22
+    if (x + w > window.innerWidth - 16) x = clientX - w - 22
+    if (y + h > window.innerHeight - 16) y = clientY - h - 22
+    x = Math.max(12, x)
+    y = Math.max(12, y)
+    target.current = { x, y }
+    if (snap) pos.current = { x, y }
+  }
+
+  const openProject = (event: MouseEvent<HTMLAnchorElement>, slug: string) => {
+    event.preventDefault()
+    navigate(`/projects/${slug}`)
+  }
+
   return (
-    <section id="cases" className="border-t border-zinc-800">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-        <div className="mb-10 flex flex-col gap-6 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-2xl">
-            <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
-              Cases / Proof
+    <section
+      id="cases"
+      className="section-shell relative"
+      onMouseMove={(e) => movePreview(e.clientX, e.clientY)}
+      onMouseLeave={() => setHover(null)}
+    >
+      <div className="page-columns" aria-hidden />
+
+      <div className="relative z-10 w-full py-20 md:py-28">
+        <header className="mb-10 flex items-end justify-between gap-6 pr-5 md:mb-14 md:pr-8">
+          <h2 className="w-[50vw] pl-5 font-sans text-[clamp(1.6rem,4.2vw,3.15rem)] font-medium uppercase leading-[1.05] tracking-[0.04em] text-[#111111] md:pl-8">
+            <LineReveal delay={0.05} className="block">
+              Последние
+            </LineReveal>
+            <LineReveal delay={0.14} className="block w-full text-right">
+              проекты
+            </LineReveal>
+          </h2>
+          <FadeUp delay={0.22} y={8}>
+            <p className="pb-1 font-[family-name:var(--font-jetbrains)] text-[11px] uppercase tracking-[0.14em] text-[#6b6b6b]">
+              26©
             </p>
-            <h2 className="text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl">
-              Что уже собирали для рынка
-            </h2>
-            <p className="mt-3 font-mono text-sm uppercase tracking-[0.14em] text-zinc-50">
-              700+ проектов реализовано
-            </p>
-            <p className="mt-4 text-base leading-relaxed text-zinc-400">
-              Превью форматов работ. Полное портфолио — на maydi.net, пока копируем сюда свои кейсы
-              maydiStudio.
-            </p>
-          </div>
+          </FadeUp>
+        </header>
+
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.1 }}
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.1, delayChildren: 0.06 } },
+          }}
+          className="mx-auto w-full max-w-[1400px] border-t border-[#111111] px-5 md:px-8"
+        >
+          {projects.map((project, i) => (
+            <motion.a
+              key={project.slug}
+              variants={staggerItem}
+              href={`/projects/${project.slug}`}
+              onClick={(e) => openProject(e, project.slug)}
+              onMouseEnter={(e) => {
+                size.current = { w: project.preview.w, h: project.preview.h }
+                const first = hover === null
+                movePreview(e.clientX, e.clientY, first)
+                lastHover.current = i
+                setHover(i)
+              }}
+              className="group grid grid-cols-1 gap-2 border-b border-[#111111] py-6 md:grid-cols-12 md:items-baseline md:gap-4 md:py-9"
+            >
+              <span className="font-sans text-[clamp(1.35rem,2.6vw,2.15rem)] font-medium uppercase leading-[1.1] tracking-[0.04em] text-[#111111] transition-opacity duration-300 group-hover:opacity-45 md:col-span-4">
+                {project.name}
+              </span>
+              <span className="font-[family-name:var(--font-jetbrains)] text-[11px] uppercase tracking-[0.12em] text-[#6b6b6b] md:col-span-3">
+                {project.tag}
+              </span>
+              <span className="font-sans text-[12px] font-medium uppercase leading-[1.5] tracking-[0.06em] text-[#111111] md:col-span-5 md:text-right md:text-[13px]">
+                {project.blurb}
+              </span>
+            </motion.a>
+          ))}
+        </motion.div>
+
+        <FadeUp delay={0.1}>
           <a
             href="https://maydi.net"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex shrink-0 items-center gap-1.5 font-mono text-xs uppercase tracking-[0.14em] text-zinc-400 transition-colors hover:text-zinc-50"
+            className="mt-8 inline-flex px-5 font-[family-name:var(--font-jetbrains)] text-[11px] uppercase tracking-[0.14em] text-[#111111] transition-opacity hover:opacity-60 md:px-8"
           >
-            Все на maydi.net
-            <ArrowUpRight size={14} />
+            все проекты({projects.length})
           </a>
-        </div>
+        </FadeUp>
+      </div>
 
-        <ul className="grid grid-cols-1 gap-px border border-zinc-800 bg-zinc-800 sm:grid-cols-3">
-          {cases.map((item, i) => (
-            <motion.li
-              key={item.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.35, delay: i * 0.08 }}
-              className="bg-zinc-950"
-            >
-              <a
-                href="https://maydi.net"
-                target="_blank"
-                rel="noreferrer"
-                className="group flex h-full flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-zinc-50"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden border-b border-zinc-800 bg-zinc-900">
-                  <div className="pointer-events-none absolute inset-0 opacity-50 grid-bg" />
-                  <div className="absolute inset-0 flex flex-col justify-between p-4">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
-                      Case {item.id}
-                    </span>
-                    <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-500 transition-colors group-hover:text-zinc-300">
-                      {item.industry}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-1 flex-col p-5 sm:p-6">
-                  <h3 className="text-base font-medium tracking-tight text-zinc-50 transition-colors group-hover:text-white">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-zinc-400">{item.blurb}</p>
-                  <span className="mt-5 inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-500 transition-colors group-hover:text-zinc-50">
-                    Смотреть
-                    <ArrowUpRight
-                      size={12}
-                      className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                    />
-                  </span>
-                </div>
-              </a>
-            </motion.li>
-          ))}
-        </ul>
+      <div
+        ref={previewRef}
+        className={`pointer-events-none fixed top-0 left-0 z-40 hidden overflow-hidden border border-[#111111] bg-[#111111] will-change-transform md:block ${
+          hover === null ? 'opacity-0' : 'opacity-100'
+        }`}
+        style={{
+          width: hover !== null ? projects[hover].preview.w : projects[lastHover.current].preview.w,
+          height: hover !== null ? projects[hover].preview.h : projects[lastHover.current].preview.h,
+          transition: 'opacity 0.22s ease, width 0.22s ease, height 0.22s ease',
+        }}
+        aria-hidden
+      >
+        <img
+          src={hover !== null ? projects[hover].hero : projects[lastHover.current].hero}
+          alt=""
+          className="h-full w-full object-cover"
+        />
       </div>
     </section>
   )
