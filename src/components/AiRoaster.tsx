@@ -313,12 +313,12 @@ function BuyerRoleSelect({
         {open && (
           <motion.ul
             role="listbox"
-            initial={{ opacity: 0, y: 4, scaleY: 0.95 }}
+            initial={{ opacity: 0, y: -4, scaleY: 0.95 }}
             animate={{ opacity: 1, y: 0, scaleY: 1 }}
-            exit={{ opacity: 0, y: 4, scaleY: 0.95 }}
+            exit={{ opacity: 0, y: -4, scaleY: 0.95 }}
             transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            style={{ originY: 1 }}
-            className="absolute bottom-[calc(100%+4px)] left-0 z-50 w-full border border-[#111111] bg-[#f2f2f2] py-1 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]"
+            style={{ originY: 0 }}
+            className="absolute top-[calc(100%+4px)] left-0 z-50 w-full max-h-[200px] overflow-y-auto border border-[#111111] bg-[#f2f2f2] py-1 shadow-[0_8px_24px_rgba(0,0,0,0.08)]"
           >
             {/* Сброс */}
             <li
@@ -454,7 +454,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
     lastInputRef.current = trimmed
     const icp = buildIcp()
     lastIcpRef.current = icp
-    
+
     // Если прикреплен файл — пока показываем ошибку, так как нет бэкенда для файлов
     if (attachedFile) {
       setError('error // creative_mode: анализ файлов/изображений в разработке. Отправьте ссылку или текст.')
@@ -532,7 +532,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
             <WordReveal text="Сомневаетесь в конверсии?" delay={0.05} stagger={0.045} />
           </h2>
           <p className="shrink-0 font-sans text-[12px] font-medium uppercase tracking-[0.08em] text-[#6b6b6b] md:pb-1 md:text-right">
-            <LineReveal delay={0.25}>прожарьте сайт за 15 секунд.</LineReveal>
+            <LineReveal delay={0.25}>прожарьте гипотезу за 15 секунд.</LineReveal>
           </p>
         </header>
 
@@ -552,7 +552,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
                 htmlFor="roast-input"
                 className="mb-3 block font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.16em] text-[#6b6b6b]"
               >
-                Вставьте ссылку на сайт, текст оффера или прикрепите файл
+                Вставьте ссылку на сайт, впишите оффер, креатив или прикрепите файл
               </label>
 
               <div className="relative flex items-end gap-2 border-b border-[#111111] bg-transparent pb-3">
@@ -602,7 +602,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
                         void handleRoast()
                       }
                     }}
-                    placeholder="https://maydi.net/ или текст вашего оффера..."
+                    placeholder="https://maydi.net/ или ваш оффер..."
                     disabled={loading}
                     rows={input.includes('\n') || input.length > 50 ? 3 : 1}
                     className="w-full resize-none bg-transparent font-sans text-[14px] leading-relaxed text-[#111111] placeholder:text-[#111111]/35 focus:outline-none disabled:opacity-50"
@@ -626,13 +626,10 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
               <AnimatePresence initial={false}>
                 {showIcp && (
                   <motion.div
-                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                    animate={{ 
-                      opacity: 1, 
-                      height: 'auto',
-                      transitionEnd: { overflow: 'visible' } 
-                    }}
-                    exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="relative z-10"
                   >
                     <div className="grid gap-3 pt-1 pb-2 sm:grid-cols-3">
                       <input
@@ -665,7 +662,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="inline-flex w-full items-center justify-center gap-2 border border-[#111111] bg-transparent px-4 py-3.5 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition-opacity hover:opacity-55 focus:outline-none"
+                  className="relative z-0 inline-flex w-full items-center justify-center gap-2 border border-[#111111] bg-transparent px-4 py-3.5 text-[12px] font-medium uppercase tracking-[0.08em] text-[#111111] transition-opacity hover:opacity-55 focus:outline-none"
                 >
                   <X size={15} className="shrink-0" strokeWidth={1.5} />
                   Отмена
@@ -674,7 +671,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
                 <button
                   type="button"
                   onClick={() => void handleRoast()}
-                  className="inline-flex w-full items-center justify-center bg-[#111111] px-4 py-3.5 text-[12px] font-medium uppercase tracking-[0.08em] text-[#f2f2f2] transition-opacity hover:opacity-80 focus:outline-none"
+                  className="relative z-0 inline-flex w-full items-center justify-center bg-[#111111] px-4 py-3.5 text-[12px] font-medium uppercase tracking-[0.08em] text-[#f2f2f2] transition-opacity hover:opacity-80 focus:outline-none"
                 >
                   Запустить AI-прожарку
                 </button>
@@ -754,7 +751,10 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
             className="px-5 py-2 font-sans text-[13px] font-medium leading-[1.85] tracking-[0.02em] text-[#111111] md:px-6 md:text-[14px]"
           >
             Ссылка или текст оффера - за 15 секунд три главные причины, почему клиенты уходят без
-            покупки. Mimora читает лендинг как ЛПР: оффер, доказательство, цена, CTA.
+            покупки.
+            <br />
+            <br />
+            Mimora читает лендинг как ЛПР: оффер, доказательство, цена, CTA.
           </motion.p>
 
           <motion.p
