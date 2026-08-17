@@ -14,7 +14,7 @@ _QUOTE_RE = re.compile(
     r"'[^']{3,}'"  # 'quote'
 )
 
-# Risk axes — keep mutually distinct enough for lead-magnet quality
+# Risk axes - keep mutually distinct enough for lead-magnet quality
 _AXIS_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     (
         "price",
@@ -101,7 +101,7 @@ def validate_objections_quality(objections: list[RoastObjection]) -> None:
         issues.append(
             "duplicate risk axes: "
             + ", ".join(dupes)
-            + " — each objection must attack a DIFFERENT axis "
+            + " - each objection must attack a DIFFERENT axis "
             "(price / roi / proof / icp / integration / positioning / cta)"
         )
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-/** Live film grain — redraws noise every frame so movement is always visible */
+/** Live film grain - redraws noise every frame so movement is always visible */
 export function SiteGrain() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 

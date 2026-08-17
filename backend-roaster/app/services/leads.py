@@ -31,7 +31,7 @@ def _leads_path(settings: Settings) -> Path:
 
 def _telegram_text(lead_id: str, body: LeadRequest) -> str:
     lines = [
-        "🔥 New lead — maydiStudio",
+        "🔥 New lead - maydiStudio",
         f"id: {lead_id}",
         f"source: {body.source}",
         f"name: {body.name}",

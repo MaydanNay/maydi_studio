@@ -19,7 +19,7 @@ export function ProjectPage({ project }: ProjectPageProps) {
   const index = projects.findIndex((p) => p.slug === project.slug)
 
   useEffect(() => {
-    document.title = `${project.name} — maydiStudio`
+    document.title = `${project.name} - maydiStudio`
     return () => {
       document.title = 'maydiStudio'
     }

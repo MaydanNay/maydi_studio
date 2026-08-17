@@ -47,13 +47,13 @@ class LlmRoastPayload(BaseModel):
 
 
 class OfferFacts(BaseModel):
-    """Pass-1 structured extraction — roast only against these facts."""
+    """Pass-1 structured extraction - roast only against these facts."""
 
     value_proposition: str = Field(description="What the offer claims to sell / deliver")
     pricing: str = Field(description="Price / tariff signals, or 'не указано'")
-    proof: str = Field(description="Cases, metrics, logos, testimonials — or 'не указано'")
-    cta: str = Field(description="Primary next step / CTA — or 'не указано'")
-    icp_signals: str = Field(description="Who it seems for — or 'не указано'")
+    proof: str = Field(description="Cases, metrics, logos, testimonials - or 'не указано'")
+    cta: str = Field(description="Primary next step / CTA - or 'не указано'")
+    icp_signals: str = Field(description="Who it seems for - or 'не указано'")
     gaps: list[str] = Field(description="Critical missing info for a B2B buyer")
     key_quotes: list[str] = Field(description="Short verbatim quotes from the source (3–8)")
 
@@ -73,8 +73,8 @@ class OfferFacts(BaseModel):
 
 
 FACTS_SYSTEM_PROMPT = """\
-Ты — аналитик B2B-офферов. Задача: извлечь ТОЛЬКО факты из входного текста.
-Не критикуй и не додумывай. Если поля нет во входе — пиши «не указано».
+Ты - аналитик B2B-офферов. Задача: извлечь ТОЛЬКО факты из входного текста.
+Не критикуй и не додумывай. Если поля нет во входе - пиши «не указано».
 key_quotes: 3–8 коротких дословных цитат из текста (без кавычек внутри поля).
 gaps: список информационных дыр, важных для ЛПР (цена, ROI, proof, ICP, next step, риски внедрения).
 Верни строго JSON по схеме.
@@ -94,9 +94,9 @@ SOURCE CONTENT:
 """
 
 ROAST_SYSTEM_PROMPT = """\
-Ты — циничный, сверханалитический B2B-покупатель.
-Если в запросе указан ICP_CONTEXT — Criticize STRICTLY from that buyer's perspective.
-Если ICP не указан — действуй как CFO + CTO + Founder, но не выдумывай отрасль.
+Ты - циничный, сверханалитический B2B-покупатель.
+Если в запросе указан ICP_CONTEXT - Criticize STRICTLY from that buyer's perspective.
+Если ICP не указан - действуй как CFO + CTO + Founder, но не выдумывай отрасль.
 
 Тебе даны EXTRACTED_FACTS (pass-1). Критикуй ТОЛЬКО на их основе + исходный текст.
 Не выдумывай кейсы/цифры/функции, которых нет в фактах.
@@ -107,7 +107,7 @@ ROAST_SYSTEM_PROMPT = """\
 1. Никаких агентских штампов. Только критика по сути бизнеса.
 2. Каждый detail ОБЯЗАН содержать короткую цитату в «ёлочках» (из key_quotes или исходника).
 3. Три РАЗНЫЕ оси: ROI, цена/TCO, proof, ICP-fit, внедрение, позиционирование, next step.
-4. Если в facts.gaps есть дыра — это сильный сигнал для возражения.
+4. Если в facts.gaps есть дыра - это сильный сигнал для возражения.
 5. Пиши на деловом русском.
 6. Верни ТОЛЬКО валидный JSON:
 {{
@@ -140,7 +140,7 @@ ORIGINAL CONTENT (for quotes only):
 
 Верни ровно 3 возражения.
 Поле "source" = {source_label!r}.
-Каждый detail — цитата в «ёлочках» + критика. Оси разные.
+Каждый detail - цитата в «ёлочках» + критика. Оси разные.
 """
 
 RETRY_USER_SUFFIX = """
@@ -267,7 +267,7 @@ class RoasterService:
             icp_block=icp_ctx.as_prompt_block(),
             facts_block=facts.as_prompt_block()
             if facts
-            else "EXTRACTED_FACTS: (two-pass disabled — roast from source only)",
+            else "EXTRACTED_FACTS: (two-pass disabled - roast from source only)",
         )
 
         roast_model = self._model_for(mode, stage="roast")
@@ -368,7 +368,7 @@ class RoasterService:
                 proof="не указано",
                 cta="не указано",
                 icp_signals="не указано",
-                gaps=["не удалось структурировать факты — опирайся на исходный текст"],
+                gaps=["не удалось структурировать факты - опирайся на исходный текст"],
                 key_quotes=[],
             )
 

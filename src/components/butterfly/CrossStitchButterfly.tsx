@@ -26,7 +26,7 @@ const vertexShader = /* glsl */ `
     vUv = uv;
     vec3 pos = position;
 
-    // Procedural wing flap — rotate around body Z (no bones)
+    // Procedural wing flap - rotate around body Z (no bones)
     float side = aWing;
     float angle = sin(u_time * u_flapSpeed) * u_flapAmp * side;
     float c = cos(angle);

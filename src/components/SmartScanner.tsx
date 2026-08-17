@@ -1,6 +1,6 @@
 import { useEffect, useRef, type RefObject } from 'react'
 
-/** 4×5 bitmap digits — same glyphs as ULTRACOMBOS hero shader */
+/** 4×5 bitmap digits - same glyphs as ULTRACOMBOS hero shader */
 const GLYPH: number[] = [
   0x69996, 0x62227, 0xe168f, 0xe161e, 0x99711, 0xf8e1e, 0x68e96, 0xf1244, 0x69696, 0x69716,
 ]
@@ -263,7 +263,7 @@ export function SmartScanner({ videoRef, containerRef }: SmartScannerProps) {
               SAMPLE,
             )
           } catch {
-            // tainted / not ready — keep fallbacks
+            // tainted / not ready - keep fallbacks
           }
           const pix = sctx.getImageData(0, 0, SAMPLE, SAMPLE).data
           const mid = (Math.floor(half) * SAMPLE + Math.floor(half)) * 4

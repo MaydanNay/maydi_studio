@@ -58,7 +58,7 @@ export function saveRoastSession(session: Omit<StoredRoastSession, 'version' | '
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
   } catch {
-    // quota / private mode — ignore
+    // quota / private mode - ignore
   }
 }
 

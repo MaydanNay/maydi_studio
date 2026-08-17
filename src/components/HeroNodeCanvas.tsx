@@ -67,10 +67,10 @@ type TooltipState = {
   top: number
 }
 
-/** Dark green — approved / high-intent ЛПР */
+/** Dark green - approved / high-intent ЛПР */
 const COLOR_GOOD = '#166534'
 const COLOR_GOOD_STROKE = '#4ade80'
-/** Dark red — critical objections */
+/** Dark red - critical objections */
 const COLOR_BAD = '#7f1d1d'
 const COLOR_BAD_STROKE = '#f87171'
 
@@ -127,16 +127,16 @@ function makeAgentTip(nodeId: number, rand: () => number): AgentTip {
 const PERSONA_TIPS: PersonaTip[] = [
   {
     kind: 'persona',
-    header: 'NODE #12 // CFO — ENTERPRISE',
+    header: 'NODE #12 // CFO - ENTERPRISE',
     score: '0.91',
     intent: 'HIGH',
-    segment: 'B2B SaaS • Штат 50+',
+    segment: 'SaaS (бизнес со сложным циклом продажи и чеком от 1 млн ₸) • Штат 50+',
     quote:
       'УТП понятно за 3 секунды. Одобрит бюджет, если есть гарантия соблюдения сроков в договоре.',
   },
   {
     kind: 'persona',
-    header: 'NODE #27 // B2B FOUNDER — GROWTH',
+    header: 'NODE #27 // FOUNDER (БИЗНЕС СО СЛОЖНЫМ ЦИКЛОМ ПРОДАЖИ) - GROWTH',
     score: '0.94',
     intent: 'HIGH',
     segment: 'Agency / Studio • Штат 10–30',
@@ -145,7 +145,7 @@ const PERSONA_TIPS: PersonaTip[] = [
   },
   {
     kind: 'persona',
-    header: 'NODE #41 // CMO — LEAD MARKETER',
+    header: 'NODE #41 // CMO - LEAD MARKETER',
     score: '0.86',
     intent: 'MED-HIGH',
     segment: 'E-commerce / Leadgen • Бюджет 2M+',
@@ -154,19 +154,19 @@ const PERSONA_TIPS: PersonaTip[] = [
   },
   {
     kind: 'persona',
-    header: 'NODE #58 // CTO — TECH LEAD',
+    header: 'NODE #58 // CTO - TECH LEAD',
     score: '0.85',
     intent: 'HIGH',
     segment: 'Product SaaS • Штат 80+',
     quote:
-      'Оценивает скорость и чистоту стека. React / Vite без конструкторов — сильный сигнал доверия.',
+      'Оценивает скорость и чистоту стека. React / Vite без конструкторов - сильный сигнал доверия.',
   },
   {
     kind: 'persona',
-    header: 'NODE #73 // CEO — MID-MARKET',
+    header: 'NODE #73 // CEO - MID-MARKET',
     score: '0.88',
     intent: 'HIGH',
-    segment: 'Services B2B • Выручка $1M+',
+    segment: 'Услуги (бизнес со сложным циклом продажи и чеком от 1 млн ₸) • Выручка $1M+',
     quote:
       'Хочет предсказуемую конверсию до закупки трафика. Готов к фиксации DoD в договоре.',
   },
@@ -205,7 +205,7 @@ const OBJECTION_TIPS: ObjectionTip[] = [
     header: 'NODE #94 // CRITICAL OBJECTION ◆',
     severity: 'MED',
     impact: 'TRUST DROP',
-    verdict: 'Слабый proof-слой для B2B',
+    verdict: 'Слабый proof-слой для бизнеса со сложным циклом продажи',
     quote:
       'Директор: "Нет кейсов с метриками. На этапе доверия ухожу без заявки."',
   },
@@ -282,7 +282,7 @@ function buildInitialGraph(count = 100): {
   const order = [...nodes.keys()]
   for (let i = order.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1))
-    ;[order[i], order[j]] = [order[j], order[i]]
+      ;[order[i], order[j]] = [order[j], order[i]]
   }
 
   const diamondCount = Math.round(count * 0.05)
@@ -348,7 +348,7 @@ function buildInitialGraph(count = 100): {
     nodes[idx].homeY = slot.y
   })
 
-  // Sparse links — only very near neighbors, so the cloud can open up
+  // Sparse links - only very near neighbors, so the cloud can open up
   const links: SimLink[] = []
   const seen = new Set<string>()
   for (let i = 0; i < nodes.length; i++) {
@@ -381,7 +381,7 @@ function buildInitialGraph(count = 100): {
     return da - db
   })
 
-  // Multiple seeds already at their homes — growth from many points, not one explosion
+  // Multiple seeds already at their homes - growth from many points, not one explosion
   const seedCount = 10
   for (let i = 0; i < seedCount; i++) {
     const id = spawnOrder[Math.floor((i / seedCount) * (count - 1))]
@@ -529,7 +529,7 @@ export function HeroNodeCanvas() {
       .force(
         'charge',
         forceManyBody()
-          // Soft repulsion — strong charge empties the center
+          // Soft repulsion - strong charge empties the center
           .strength((d) => ((d as SimNode).spawned ? -6 : 0))
           .distanceMax(28),
       )
@@ -562,7 +562,7 @@ export function HeroNodeCanvas() {
         frame += 1
         const expanding = spawnCursor < pending.length
 
-        // Appear near own home, linked from nearest living neighbor — not one explosion center
+        // Appear near own home, linked from nearest living neighbor - not one explosion center
         if (frame % 2 === 0 && expanding) {
           const id = pending[spawnCursor]
           const child = nodes[id]
@@ -611,9 +611,9 @@ export function HeroNodeCanvas() {
             const dist = Math.hypot(dx, dy) || 0.01
             const minDist =
               a.tip?.kind === 'persona' ||
-              a.tip?.kind === 'objection' ||
-              b.tip?.kind === 'persona' ||
-              b.tip?.kind === 'objection'
+                a.tip?.kind === 'objection' ||
+                b.tip?.kind === 'persona' ||
+                b.tip?.kind === 'objection'
                 ? 5.2
                 : 3.0
             if (dist < minDist) {
@@ -713,7 +713,7 @@ export function HeroNodeCanvas() {
     node.fx = node.x
     node.fy = node.y
     sim.alphaTarget(0.08).restart()
-    ;(e.target as Element).setPointerCapture?.(e.pointerId)
+      ; (e.target as Element).setPointerCapture?.(e.pointerId)
 
     const onMove = (ev: PointerEvent) => {
       dragMoved.current = true
@@ -724,7 +724,7 @@ export function HeroNodeCanvas() {
     }
 
     const onUp = () => {
-      // Soft release — mild inertia, no sharp restart
+      // Soft release - mild inertia, no sharp restart
       node.fx = null
       node.fy = null
       sim.alphaTarget(0).alpha(0.06).restart()
@@ -826,13 +826,12 @@ export function HeroNodeCanvas() {
         createPortal(
           <div
             role="tooltip"
-            className={`pointer-events-none fixed z-[9999] w-[min(100vw-1rem,18.75rem)] border bg-zinc-950/98 p-3 shadow-[0_12px_40px_rgba(0,0,0,0.65)] backdrop-blur-md ${
-              tooltip.tip.kind === 'objection'
+            className={`pointer-events-none fixed z-[9999] w-[min(100vw-1rem,18.75rem)] border bg-zinc-950/98 p-3 shadow-[0_12px_40px_rgba(0,0,0,0.65)] backdrop-blur-md ${tooltip.tip.kind === 'objection'
                 ? 'border-red-900/80'
                 : tooltip.tip.kind === 'persona'
                   ? 'border-emerald-800/80'
                   : 'border-zinc-700'
-            }`}
+              }`}
             style={{ left: tooltip.left, top: tooltip.top }}
           >
             <TooltipCard tip={tooltip.tip} />

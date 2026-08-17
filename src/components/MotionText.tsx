@@ -5,7 +5,7 @@ export const motionEase = [0.22, 1, 0.36, 1] as const
 
 const viewport = { once: true, amount: 0.15 as const, margin: '0px 0px -40px 0px' }
 
-/** Soft fade + rise — safe, never clips text away */
+/** Soft fade + rise - safe, never clips text away */
 export function FadeUp({
   children,
   className = '',
@@ -32,7 +32,7 @@ export function FadeUp({
   )
 }
 
-/** Word-by-word fade (no overflow mask — can't get stuck invisible) */
+/** Word-by-word fade (no overflow mask - can't get stuck invisible) */
 export function WordReveal({
   text,
   className = '',
@@ -68,7 +68,7 @@ export function WordReveal({
   )
 }
 
-/** Line / phrase fade — for short headlines */
+/** Line / phrase fade - for short headlines */
 export function LineReveal({
   children,
   className = '',
@@ -91,7 +91,7 @@ export function LineReveal({
   )
 }
 
-/** Letter stagger for MAYDI — uses animate (always on first screen) */
+/** Letter stagger for MAYDI - uses animate (always on first screen) */
 export function LetterReveal({
   text,
   className = '',

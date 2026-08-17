@@ -2,7 +2,7 @@ import * as THREE from 'three'
 
 /**
  * Low-poly butterfly: body + left/right wings.
- * Attribute `aWing`: -1 left, 0 body, +1 right — for vertex flap.
+ * Attribute `aWing`: -1 left, 0 body, +1 right - for vertex flap.
  */
 function pushTri(
   positions: number[],
@@ -68,7 +68,7 @@ export function createButterflyGeometry(): THREE.BufferGeometry {
   fanWing(positions, wings, uvs, hingeR, mirror(leftFore), 1)
   fanWing(positions, wings, uvs, hingeR, mirror(leftHind), 1)
 
-  // Body (abdomen + thorax) — aWing = 0
+  // Body (abdomen + thorax) - aWing = 0
   const body = [
     new THREE.Vector3(0, 0.22, 0.01),
     new THREE.Vector3(0.05, 0.08, 0.01),

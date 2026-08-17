@@ -71,7 +71,7 @@ const fragmentShader = /* glsl */ `
     return vec2(n1 - n2, n4 - n3);
   }
 
-  // Soft liquid mouse push — linear, no vortex / ripples / 1/r
+  // Soft liquid mouse push - linear, no vortex / ripples / 1/r
   // influence from screen UV; offset applied on top of already-flowed UV
   vec2 softMousePush(vec2 screenUv, vec2 flowedUv, float aspect) {
     if (u_mouse.x < 0.0 || u_mouse.x > 1.0 || u_mouse.y < 0.0 || u_mouse.y > 1.0) {
@@ -207,14 +207,14 @@ const fragmentShader = /* glsl */ `
     float crossMask = 1.0 - smoothstep(-aa, aa, d);
 
     float visibility = mix(0.45, 1.0, smoothstep(0.0, 0.12, luminance));
-    // Slight translucency — crosses don't fully cover the void
+    // Slight translucency - crosses don't fully cover the void
     crossMask *= visibility * 0.7;
 
     vec3 bg = vec3(0.02);
     vec3 color = mix(bg, chroma, crossMask);
     color += chroma * crossMask * smoothstep(0.25, 0.75, luminance) * 0.08;
 
-    // Less pattern on the sides — fade left/right toward void
+    // Less pattern on the sides - fade left/right toward void
     float sideFade = smoothstep(0.0, 0.28, uv.x) * smoothstep(0.0, 0.28, 1.0 - uv.x);
     sideFade = mix(0.12, 1.0, sideFade);
     color = mix(bg, color, sideFade);

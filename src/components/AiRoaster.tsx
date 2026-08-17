@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Loader2, X } from 'lucide-react'
+import { Loader2, X, Plus, Paperclip } from 'lucide-react'
 import type { LeadContext } from '../lib/leads'
 import { loadRoastSession, saveRoastSession } from '../lib/roastStorage'
 import { RoastResultModal } from './RoastResultModal'
@@ -58,7 +58,6 @@ const ROAST_URL = API_BASE
   ? `${API_BASE}/api/v1/tools/roast`
   : '/api/v1/tools/roast'
 const CLIENT_TIMEOUT_MS = 90_000
-const CLIENT_TIMEOUT_WOW_MS = 140_000
 
 const CONNECTION_ERROR =
   'error // connection_refused: убедитесь, что локальный бэкенд запущен на порту 8000'
@@ -81,8 +80,6 @@ const SCAN_COPY = [
   '> roast_pass // scoring conversion blockers...',
   '> quality_gate // quotes + axis diversity check...',
 ] as const
-
-const SCAN_WOW_EXTRA = '> wow_engine // gpt-4o deep critique pass...' as const
 
 const URL_LIKE_RE =
   /^(https?:\/\/|(?:www\.)?[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+(?:[/:?#].*)?)$/i
@@ -264,10 +261,99 @@ function downloadMarkdown(
   URL.revokeObjectURL(url)
 }
 
+/** Кастомный дропдаун для выбора роли ЛПР в стиле сайта */
+function BuyerRoleSelect({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: BuyerRole | ''
+  onChange: (v: BuyerRole | '') => void
+  disabled?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Закрываем по клику вне компонента
+  useEffect(() => {
+    if (!open) return
+    const handleOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleOutside)
+    return () => document.removeEventListener('mousedown', handleOutside)
+  }, [open])
+
+  const label = value || 'ЛПР (buyer)'
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* Триггер */}
+      <button
+        type="button"
+        onClick={() => !disabled && setOpen((v) => !v)}
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-2 border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] focus:border-[#111111] focus:outline-none disabled:opacity-50"
+      >
+        <span className={value ? 'text-[#111111]' : 'text-[#111111]/35'}>{label}</span>
+        <span
+          className="shrink-0 font-[family-name:var(--font-jetbrains)] text-[9px] text-[#6b6b6b] transition-transform duration-200"
+          style={{ display: 'inline-block', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        >
+          ▾
+        </span>
+      </button>
+
+      {/* Список — открывается ВВЕРХ */}
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            role="listbox"
+            initial={{ opacity: 0, y: 4, scaleY: 0.95 }}
+            animate={{ opacity: 1, y: 0, scaleY: 1 }}
+            exit={{ opacity: 0, y: 4, scaleY: 0.95 }}
+            transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            style={{ originY: 1 }}
+            className="absolute bottom-[calc(100%+4px)] left-0 z-50 w-full border border-[#111111] bg-[#f2f2f2] py-1 shadow-[0_-8px_24px_rgba(0,0,0,0.08)]"
+          >
+            {/* Сброс */}
+            <li
+              role="option"
+              aria-selected={value === ''}
+              onClick={() => { onChange(''); setOpen(false) }}
+              className="cursor-pointer px-3.5 py-2 font-[family-name:var(--font-jetbrains)] text-[11px] uppercase tracking-[0.1em] text-[#6b6b6b] transition-colors hover:bg-[#111111] hover:text-[#f2f2f2]"
+            >
+              ЛПР (buyer)
+            </li>
+            {BUYER_ROLES.filter(Boolean).map((role) => (
+              <li
+                key={role}
+                role="option"
+                aria-selected={value === role}
+                onClick={() => { onChange(role as BuyerRole); setOpen(false) }}
+                className={[
+                  'cursor-pointer px-3.5 py-2 font-[family-name:var(--font-jetbrains)] text-[11px] uppercase tracking-[0.1em] transition-colors hover:bg-[#111111] hover:text-[#f2f2f2]',
+                  value === role ? 'bg-[#111111] text-[#f2f2f2]' : 'text-[#111111]',
+                ].join(' ')}
+              >
+                {role}
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 export function AiRoaster({ onBookCall }: AiRoasterProps) {
   const [input, setInput] = useState('')
+  const [attachedFile, setAttachedFile] = useState<File | null>(null)
   const [showIcp, setShowIcp] = useState(false)
-  const [wowMode, setWowMode] = useState(false)
   const [niche, setNiche] = useState('')
   const [buyerRole, setBuyerRole] = useState<BuyerRole | ''>('')
   const [avgCheck, setAvgCheck] = useState('')
@@ -283,10 +369,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
   const lastInputRef = useRef('')
   const lastIcpRef = useRef<IcpContext | undefined>(undefined)
 
-  const scanLines = [
-    ...(scanMode === 'url' ? SCAN_URL : SCAN_COPY),
-    ...(wowMode ? [SCAN_WOW_EXTRA] : []),
-  ]
+  const scanLines = scanMode === 'url' ? SCAN_URL : SCAN_COPY
 
   const buildIcp = (): IcpContext | undefined => {
     const icp: IcpContext = {}
@@ -336,7 +419,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
     if (!saved) return
     setResult(saved.result)
     lastInputRef.current = saved.originalInput
-    lastIcpRef.current = saved.icp
+    lastIcpRef.current = saved.icp as IcpContext | undefined
     if (saved.originalInput) setInput(saved.originalInput)
     if (saved.icp?.niche) {
       setNiche(saved.icp.niche)
@@ -350,7 +433,6 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
       setAvgCheck(saved.icp.avg_check)
       setShowIcp(true)
     }
-    if (saved.result.mode === 'wow') setWowMode(true)
   }, [])
 
   const handleCancel = () => {
@@ -367,12 +449,18 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
     abortRef.current?.abort()
     const controller = new AbortController()
     abortRef.current = controller
-    const timeoutMs = wowMode ? CLIENT_TIMEOUT_WOW_MS : CLIENT_TIMEOUT_MS
-    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs)
+    const timeoutId = window.setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS)
 
     lastInputRef.current = trimmed
     const icp = buildIcp()
     lastIcpRef.current = icp
+    
+    // Если прикреплен файл — пока показываем ошибку, так как нет бэкенда для файлов
+    if (attachedFile) {
+      setError('error // creative_mode: анализ файлов/изображений в разработке. Отправьте ссылку или текст.')
+      return
+    }
+
     setScanMode(looksLikeUrl(trimmed) ? 'url' : 'copy')
     setError(null)
     setLoading(true)
@@ -386,7 +474,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
         trimmed,
         controller.signal,
         icp,
-        wowMode ? 'wow' : 'standard',
+        'standard',
       )
       setResult(data)
       setResultOpen(true)
@@ -444,11 +532,11 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
             <WordReveal text="Сомневаетесь в конверсии?" delay={0.05} stagger={0.045} />
           </h2>
           <p className="shrink-0 font-sans text-[12px] font-medium uppercase tracking-[0.08em] text-[#6b6b6b] md:pb-1 md:text-right">
-            <LineReveal delay={0.25}>прожарьте сайт.</LineReveal>
+            <LineReveal delay={0.25}>прожарьте сайт за 15 секунд.</LineReveal>
           </p>
         </header>
 
-        {/* 4 cols = page-columns 25/50/75 — form spans first two */}
+        {/* 4 cols = page-columns 25/50/75 - form spans first two */}
         <div className="page-grid items-start">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -457,34 +545,122 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
             transition={{ duration: 0.65, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-col px-5 py-2 md:col-span-2 md:px-8"
           >
-            <p className="mb-8 font-sans text-[13px] font-medium leading-[1.6] text-[#111111]">
-              <span className="mr-2 inline-block h-1.5 w-1.5 translate-y-[-1px] bg-[#111111]" aria-hidden />
-              Запустить AI-прожарку
-            </p>
 
-            <label
-              htmlFor="roast-input"
-              className="mb-3 block font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.16em] text-[#6b6b6b]"
-            >
-              url || offer_copy
-            </label>
+            {/* Поле ввода */}
+            <div className="mb-4">
+              <label
+                htmlFor="roast-input"
+                className="mb-3 block font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.16em] text-[#6b6b6b]"
+              >
+                Вставьте ссылку на сайт, текст оффера или прикрепите файл
+              </label>
 
-            <input
-              id="roast-input"
-              type="text"
-              inputMode="url"
-              autoComplete="url"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !loading) void handleRoast()
-              }}
-              placeholder="https://maydi.net/ или текст оффера"
-              disabled={loading}
-              className="w-full border-b border-[#111111] bg-transparent pb-3 font-sans text-[14px] text-[#111111] placeholder:text-[#111111]/35 focus:outline-none disabled:opacity-50"
-            />
+              <div className="relative flex items-end gap-2 border-b border-[#111111] bg-transparent pb-3">
+                <div className="relative shrink-0">
+                  <input
+                    type="file"
+                    id="roast-file-upload"
+                    className="hidden"
+                    disabled={loading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) setAttachedFile(file)
+                    }}
+                  />
+                  <label
+                    htmlFor="roast-file-upload"
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#111111]/5 text-[#111111] transition-colors hover:bg-[#111111]/10"
+                    title="Прикрепить файл или креатив"
+                  >
+                    <Plus size={18} strokeWidth={1.5} />
+                  </label>
+                </div>
+
+                <div className="flex w-full flex-col">
+                  {attachedFile && (
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className="flex items-center gap-1.5 rounded-full bg-[#111111]/5 px-2.5 py-1 font-mono text-[11px] text-[#111111]">
+                        <Paperclip size={12} />
+                        <span className="max-w-[150px] truncate">{attachedFile.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setAttachedFile(null)}
+                          className="ml-1 hover:text-[#C4846A]"
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    </div>
+                  )}
+                  <textarea
+                    id="roast-input"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey && !loading) {
+                        e.preventDefault()
+                        void handleRoast()
+                      }
+                    }}
+                    placeholder="https://maydi.net/ или текст вашего оффера..."
+                    disabled={loading}
+                    rows={input.includes('\n') || input.length > 50 ? 3 : 1}
+                    className="w-full resize-none bg-transparent font-sans text-[14px] leading-relaxed text-[#111111] placeholder:text-[#111111]/35 focus:outline-none disabled:opacity-50"
+                  />
+                </div>
+              </div>
+            </div>
 
             <div className="mt-6 flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <button
+                  type="button"
+                  onClick={() => setShowIcp((v) => !v)}
+                  disabled={loading}
+                  className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.12em] text-[#6b6b6b] transition-colors hover:text-[#111111] disabled:opacity-50"
+                >
+                  {showIcp ? '▾' : '▸'} Уточнить целевую аудиторию
+                </button>
+              </div>
+
+              <AnimatePresence initial={false}>
+                {showIcp && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                    animate={{ 
+                      opacity: 1, 
+                      height: 'auto',
+                      transitionEnd: { overflow: 'visible' } 
+                    }}
+                    exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                  >
+                    <div className="grid gap-3 pt-1 pb-2 sm:grid-cols-3">
+                      <input
+                        type="text"
+                        value={niche}
+                        onChange={(e) => setNiche(e.target.value)}
+                        disabled={loading}
+                        placeholder="ниша: EdTech (бизнес со сложным циклом продажи и чеком от 1 млн ₸)"
+                        className="border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] placeholder:text-[#111111]/35 focus:border-[#111111] focus:outline-none disabled:opacity-50"
+                      />
+                      <BuyerRoleSelect
+                        value={buyerRole}
+                        onChange={setBuyerRole}
+                        disabled={loading}
+                      />
+                      <input
+                        type="text"
+                        value={avgCheck}
+                        onChange={(e) => setAvgCheck(e.target.value)}
+                        disabled={loading}
+                        placeholder="чек: $10 000"
+                        className="border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] placeholder:text-[#111111]/35 focus:border-[#111111] focus:outline-none disabled:opacity-50"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {loading ? (
                 <button
                   type="button"
@@ -500,73 +676,9 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
                   onClick={() => void handleRoast()}
                   className="inline-flex w-full items-center justify-center bg-[#111111] px-4 py-3.5 text-[12px] font-medium uppercase tracking-[0.08em] text-[#f2f2f2] transition-opacity hover:opacity-80 focus:outline-none"
                 >
-                  Запустить
+                  Запустить AI-прожарку
                 </button>
               )}
-
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-                <button
-                  type="button"
-                  onClick={() => setShowIcp((v) => !v)}
-                  disabled={loading}
-                  className="font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.12em] text-[#6b6b6b] transition-colors hover:text-[#111111] disabled:opacity-50"
-                >
-                  {showIcp ? '▾' : '▸'} icp_context
-                </button>
-                <label className="inline-flex cursor-pointer items-center gap-2 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.12em] text-[#6b6b6b]">
-                  <input
-                    type="checkbox"
-                    checked={wowMode}
-                    disabled={loading}
-                    onChange={(e) => setWowMode(e.target.checked)}
-                    className="h-3 w-3 appearance-none border border-[#111111]/45 bg-transparent checked:bg-[#111111]"
-                  />
-                  <span className={wowMode ? 'text-[#111111]' : undefined}>wow_mode</span>
-                </label>
-              </div>
-
-              <AnimatePresence initial={false}>
-                {showIcp && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="grid gap-3 pt-1 sm:grid-cols-3">
-                      <input
-                        type="text"
-                        value={niche}
-                        onChange={(e) => setNiche(e.target.value)}
-                        disabled={loading}
-                        placeholder="ниша: B2B EdTech"
-                        className="border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] placeholder:text-[#111111]/35 focus:border-[#111111] focus:outline-none disabled:opacity-50"
-                      />
-                      <select
-                        value={buyerRole}
-                        onChange={(e) => setBuyerRole(e.target.value as BuyerRole | '')}
-                        disabled={loading}
-                        className="border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] focus:border-[#111111] focus:outline-none disabled:opacity-50"
-                      >
-                        <option value="">ЛПР (buyer)</option>
-                        {BUYER_ROLES.filter(Boolean).map((role) => (
-                          <option key={role} value={role}>
-                            {role}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        type="text"
-                        value={avgCheck}
-                        onChange={(e) => setAvgCheck(e.target.value)}
-                        disabled={loading}
-                        placeholder="чек: 80 000₽/мес"
-                        className="border-b border-[#111111]/35 bg-transparent pb-2 font-sans text-[13px] text-[#111111] placeholder:text-[#111111]/35 focus:border-[#111111] focus:outline-none disabled:opacity-50"
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
 
             {error && (
@@ -630,7 +742,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
             </AnimatePresence>
 
             <p className="mt-12 font-[family-name:var(--font-jetbrains)] text-[10px] uppercase tracking-[0.12em] text-[#6b6b6b]">
-              без регистрации · отчёт в модалке + .md
+              без регистрации · результат сразу
             </p>
           </motion.div>
 
@@ -641,7 +753,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
             transition={{ duration: 0.65, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
             className="px-5 py-2 font-sans text-[13px] font-medium leading-[1.85] tracking-[0.02em] text-[#111111] md:px-6 md:text-[14px]"
           >
-            Ссылка или текст оффера — за 15 секунд три главные причины, почему клиенты уходят без
+            Ссылка или текст оффера - за 15 секунд три главные причины, почему клиенты уходят без
             покупки. Mimora читает лендинг как ЛПР: оффер, доказательство, цена, CTA.
           </motion.p>
 
@@ -652,8 +764,7 @@ export function AiRoaster({ onBookCall }: AiRoasterProps) {
             transition={{ duration: 0.65, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
             className="px-5 py-2 font-sans text-[13px] font-medium leading-[1.85] tracking-[0.02em] text-[#111111] md:px-6 md:pr-8 md:text-[14px]"
           >
-            Без регистрации. Результат сразу в модалке — и можно скачать .md-отчёт для команды до
-            запуска трафика.
+            Без регистрации. Результат — сразу в интерфейсе. Отчёт можно скачать и переслать команде.
           </motion.p>
         </div>
       </div>

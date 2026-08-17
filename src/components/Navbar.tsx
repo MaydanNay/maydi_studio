@@ -92,7 +92,7 @@ export function Navbar({ onBookCall }: NavbarProps) {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 48)
     onScroll()
-    // App scrolls to top on route change after this effect — resync next frames
+    // App scrolls to top on route change after this effect - resync next frames
     const a = requestAnimationFrame(onScroll)
     const b = requestAnimationFrame(() => requestAnimationFrame(onScroll))
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -126,17 +126,15 @@ export function Navbar({ onBookCall }: NavbarProps) {
     <>
       <div
         aria-hidden
-        className={`site-header__blur pointer-events-none fixed inset-x-0 top-0 z-40 transition-opacity duration-500 ease-out ${
-          open ? 'bottom-0' : 'h-[5.5rem] sm:h-24'
-        } ${showNav ? 'opacity-100' : 'opacity-0'}`}
+        className={`site-header__blur pointer-events-none fixed inset-x-0 top-0 z-40 transition-opacity duration-500 ease-out ${open ? 'bottom-0' : 'h-[5.5rem] sm:h-24'
+          } ${showNav ? 'opacity-100' : 'opacity-0'}`}
       />
 
       <header className="site-header-invert pointer-events-none fixed inset-x-0 top-0 z-50">
         <nav className="relative mx-auto flex h-16 max-w-6xl items-center px-4 sm:px-6 lg:px-8">
           <div
-            className={`flex flex-1 items-center gap-6 transition-opacity duration-300 ${
-              showNav ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-            }`}
+            className={`flex flex-1 items-center gap-6 transition-opacity duration-300 ${showNav ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+              }`}
           >
             <button
               type="button"
@@ -168,9 +166,8 @@ export function Navbar({ onBookCall }: NavbarProps) {
           <SiteLogo scrolled={scrolled} />
 
           <div
-            className={`flex flex-1 items-center justify-end gap-3 transition-opacity duration-300 ${
-              showNav ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
-            }`}
+            className={`flex flex-1 items-center justify-end gap-3 transition-opacity duration-300 ${showNav ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+              }`}
           >
             <ul className="hidden items-center gap-6 lg:flex">
               {links.slice(4).map((l) => (

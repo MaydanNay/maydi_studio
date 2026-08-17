@@ -21,7 +21,7 @@ BuyerRole = Literal[
 
 
 class IcpContext(BaseModel):
-    """Optional buyer context — sharply improves roast specificity."""
+    """Optional buyer context - sharply improves roast specificity."""
 
     niche: str | None = Field(
         default=None,
@@ -53,7 +53,7 @@ class IcpContext(BaseModel):
 
     def as_prompt_block(self) -> str:
         if self.is_empty():
-            return "ICP_CONTEXT: (not provided — infer carefully from offer, do not invent)"
+            return "ICP_CONTEXT: (not provided - infer carefully from offer, do not invent)"
         parts: list[str] = []
         if self.niche:
             parts.append(f"niche={self.niche}")

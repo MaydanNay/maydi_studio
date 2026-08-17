@@ -1,4 +1,4 @@
-"""FastAPI application entrypoint — AI Offer Roaster microservice."""
+"""FastAPI application entrypoint - AI Offer Roaster microservice."""
 
 from __future__ import annotations
 

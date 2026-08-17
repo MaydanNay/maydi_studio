@@ -6,7 +6,7 @@ export function HowItWorks() {
     <SectionShell
       id="how-it-works"
       title="Как это работает"
-      lead="mimora читает лендинг как ЛПР — зона за зоной, с выводами по каждому блоку до запуска трафика."
+      lead="mimora читает лендинг как ЛПР - зона за зоной, с выводами по каждому блоку до запуска трафика."
       compact
     >
       <Reveal className="page-cell md:col-span-2">

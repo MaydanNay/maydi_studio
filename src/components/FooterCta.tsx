@@ -70,7 +70,7 @@ export function FooterCta({ onBookCall: _onBookCall }: FooterCtaProps) {
     <footer id="contact" className="section-shell relative overflow-hidden">
       <div className="page-columns" aria-hidden />
 
-      {/* Butterfly — full width, lower */}
+      {/* Butterfly - full width, lower */}
       <div className="relative z-[5] mx-auto flex min-h-[56vh] w-full items-end justify-center md:min-h-[62vh]">
         <motion.img
           initial={{ opacity: 0, y: 28 }}
@@ -85,7 +85,7 @@ export function FooterCta({ onBookCall: _onBookCall }: FooterCtaProps) {
         />
       </div>
 
-      {/* Links — slightly higher */}
+      {/* Links - slightly higher */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}

@@ -94,7 +94,7 @@ export function ContactsHover({
         aria-expanded={open}
         aria-controls={panelId}
         aria-haspopup="dialog"
-        title={open ? 'Свернуть контакты' : 'Наведите или нажмите — показать контакты'}
+        title={open ? 'Свернуть контакты' : 'Наведите или нажмите - показать контакты'}
         onClick={() => setOpen((v) => !v)}
         className={triggerClass}
       >
@@ -117,11 +117,10 @@ export function ContactsHover({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: placement === 'top' ? 4 : -4, scale: 0.98 }}
             transition={{ duration: 0.15 }}
-            className={`absolute z-50 w-[min(100vw-2rem,20rem)] border border-zinc-800 bg-zinc-950 p-4 shadow-[0_0_0_1px_rgba(39,39,42,0.4)] ${
-              placement === 'top'
+            className={`absolute z-50 w-[min(100vw-2rem,20rem)] border border-zinc-800 bg-zinc-950 p-4 shadow-[0_0_0_1px_rgba(39,39,42,0.4)] ${placement === 'top'
                 ? 'bottom-full left-1/2 mb-2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0'
                 : 'left-1/2 top-full mt-2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0'
-            }`}
+              }`}
             onMouseEnter={clearClose}
             onMouseLeave={scheduleClose}
           >

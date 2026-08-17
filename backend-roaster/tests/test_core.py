@@ -98,19 +98,19 @@ def test_quality_requires_quotes() -> None:
             id="01",
             title="Цена без якоря",
             severity="HIGH",
-            detail="Нет прозрачной цены — CFO уйдёт.",
+            detail="Нет прозрачной цены - CFO уйдёт.",
         ),
         RoastObjection(
             id="02",
             title="Слабый proof",
             severity="HIGH",
-            detail="«Кейс +37%» без методологии — доверия нет.",
+            detail="«Кейс +37%» без методологии - доверия нет.",
         ),
         RoastObjection(
             id="03",
             title="Размытый CTA",
             severity="MED",
-            detail="«Запишитесь на демо» — неясно, что будет на звонке.",
+            detail="«Запишитесь на демо» - неясно, что будет на звонке.",
         ),
     ]
     with pytest.raises(QualityError) as ei:
@@ -127,19 +127,19 @@ def test_quality_rejects_duplicate_axes() -> None:
             id="01",
             title="Неясная цена",
             severity="HIGH",
-            detail="«от 29 000₽» — скрытые расходы пугают CFO.",
+            detail="«от 29 000₽» - скрытые расходы пугают CFO.",
         ),
         RoastObjection(
             id="02",
             title="Тариф непрозрачен",
             severity="HIGH",
-            detail="«Тариф от 29к» без состава пакета — риск для бюджета.",
+            detail="«Тариф от 29к» без состава пакета - риск для бюджета.",
         ),
         RoastObjection(
             id="03",
             title="Слабый next step",
             severity="MED",
-            detail="«Запишитесь на демо» — нет ясности следующего шага.",
+            detail="«Запишитесь на демо» - нет ясности следующего шага.",
         ),
     ]
     with pytest.raises(QualityError) as ei:
@@ -156,19 +156,19 @@ def test_quality_passes_diverse_quoted() -> None:
             id="01",
             title="ROI не доказан",
             severity="HIGH",
-            detail="«+37% к сделкам» без базы сравнения — экономика покупки не сходится.",
+            detail="«+37% к сделкам» без базы сравнения - экономика покупки не сходится.",
         ),
         RoastObjection(
             id="02",
             title="Цена без TCO",
             severity="HIGH",
-            detail="«от 29 000₽/мес» — CFO не видит полную стоимость владения.",
+            detail="«от 29 000₽/мес» - CFO не видит полную стоимость владения.",
         ),
         RoastObjection(
             id="03",
             title="CTA размыт",
             severity="MED",
-            detail="«Запишитесь на демо» — неясно, что будет на созвоне и сколько займёт.",
+            detail="«Запишитесь на демо» - неясно, что будет на созвоне и сколько займёт.",
         ),
     ]
     validate_objections_quality(objs)

@@ -153,7 +153,7 @@ export function Founders() {
           </h1>
           <p className="mt-6 max-w-[32rem] font-sans text-[13px] font-medium uppercase leading-[1.85] tracking-[0.06em] text-[#111111] md:text-[15px]">
             Объединили инженерный опыт и симуляцию аудиторий, чтобы воронки работали с
-            предсказуемой конверсией — без слепых A/B-тестов на вашем бюджете.
+            предсказуемой конверсией - без слепых A/B-тестов на вашем бюджете.
           </p>
           <ul className="mt-10 flex flex-col gap-2">
             {highlights.map((item) => (
@@ -168,7 +168,7 @@ export function Founders() {
         </motion.div>
 
         <div className="min-h-[50vh] border-[#111111] md:min-h-0 md:border-l">
-          <PixelReveal src="/founders.webp" alt="Maydan и Diana — co-founders maydiStudio" />
+          <PixelReveal src="/founders.webp" alt="Maydan и Diana - co-founders maydiStudio" />
         </div>
       </div>
     </section>

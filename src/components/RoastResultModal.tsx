@@ -33,6 +33,7 @@ export function RoastResultModal({
 }: RoastResultModalProps) {
   const [leadName, setLeadName] = useState('')
   const [leadContact, setLeadContact] = useState('')
+  const [leadEmail, setLeadEmail] = useState('')
   const [leadSubmitting, setLeadSubmitting] = useState(false)
   const [leadDone, setLeadDone] = useState(false)
   const [leadError, setLeadError] = useState<string | null>(null)
@@ -56,6 +57,7 @@ export function RoastResultModal({
     setLeadError(null)
     setLeadName('')
     setLeadContact('')
+    setLeadEmail('')
   }, [open, result])
 
   if (!result) return null
@@ -71,8 +73,13 @@ export function RoastResultModal({
   const handleInlineLead = async () => {
     const name = leadName.trim()
     const contact = leadContact.trim()
+    const email = leadEmail.trim()
     if (!name || !contact) {
       setLeadError('Введите имя и контакт')
+      return
+    }
+    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      setLeadError('Проверьте адрес электронной почты')
       return
     }
     setLeadSubmitting(true)
@@ -81,6 +88,7 @@ export function RoastResultModal({
       await captureLead({
         name,
         contact,
+        email: email || undefined,
         source: 'ai_roaster',
         roast_source: result.source,
         objection_titles: result.objections.map((o) => o.title),
@@ -88,6 +96,7 @@ export function RoastResultModal({
         buyer_role: buyerRole,
       })
       setLeadDone(true)
+      // TODO: здесь нужно запустить фоновый расширенный AI-анализ (endpoint + задержка отправки email — уточнить у команды)
     } catch {
       setLeadError('Не удалось отправить. Откройте форму разбора или напишите в Telegram.')
     } finally {
@@ -168,17 +177,14 @@ export function RoastResultModal({
                   <button
                     type="button"
                     onClick={onDownload}
-                    className="inline-flex items-center justify-center gap-2 border border-zinc-700 bg-transparent px-4 py-3 text-sm font-medium text-zinc-50 transition-colors hover:border-zinc-500 hover:bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1D1D1D]"
+                    className="inline-flex flex-col items-start justify-center gap-0.5 border border-zinc-700 bg-transparent px-4 py-3 text-sm font-medium text-zinc-50 transition-colors hover:border-zinc-500 hover:bg-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1D1D1D]"
                   >
                     {downloadSaved ? (
-                      <>
-                        <Check size={16} className="shrink-0" />
-                        ✓ Сохранено
-                      </>
+                      <span className="flex items-center gap-2"><Check size={16} className="shrink-0" />✓ Сохранено</span>
                     ) : (
                       <>
-                        <Download size={16} className="shrink-0" />
-                        Скачать AI-Аудит (.MD)
+                        <span className="flex items-center gap-2"><Download size={16} className="shrink-0" />Скачать AI-Аудит (.MD)</span>
+                        <span className="mt-0.5 font-mono text-[10px] font-normal text-zinc-500">открывается в браузере или любом текстовом редакторе</span>
                       </>
                     )}
                   </button>
@@ -211,12 +217,14 @@ export function RoastResultModal({
                   Разбор по вашему аудиту
                 </h3>
                 <p className="mb-6 text-sm leading-relaxed text-zinc-400">
-                  Оставьте контакт — разберём эти 3 возражения на 15-минутном созвоне с фаундерами.
+                  Оставьте контакт — бесплатно разберём эти возражения на 15-минутном созвоне с фаундерами.
+                  {' '}Плюс пришлём на почту расширенный AI-разбор вашего сайта.
                 </p>
 
                 {leadDone ? (
                   <p className="font-mono text-sm text-zinc-50">
-                    ✓ Заявка отправлена. Откроется Telegram с контекстом аудита.
+                    ✓ Заявка принята! Мы свяжемся с вами в Telegram/WhatsApp.
+                    {leadEmail ? ' Расширенный AI-разбор придёт на почту в течение часа.' : ''}
                   </p>
                 ) : (
                   <div className="flex flex-1 flex-col gap-3">
@@ -234,6 +242,14 @@ export function RoastResultModal({
                       onChange={(e) => setLeadContact(e.target.value)}
                       disabled={leadSubmitting}
                       placeholder="Telegram / WhatsApp"
+                      className="w-full border border-zinc-700 bg-[#1D1D1D] px-3 py-3 font-mono text-sm text-zinc-50 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
+                    />
+                    <input
+                      type="email"
+                      value={leadEmail}
+                      onChange={(e) => setLeadEmail(e.target.value)}
+                      disabled={leadSubmitting}
+                      placeholder="Email — пришлём расширенный AI-разбор (необязательно)"
                       className="w-full border border-zinc-700 bg-[#1D1D1D] px-3 py-3 font-mono text-sm text-zinc-50 placeholder:text-zinc-600 focus:border-zinc-500 focus:outline-none disabled:opacity-60"
                     />
                     {leadError && (

@@ -6,11 +6,14 @@ export type LeadContext = {
   objectionTitles?: string[]
   niche?: string
   buyerRole?: string
+  email?: string
 }
 
 export type LeadPayload = {
   name: string
   contact: string
+  /** Email для отправки расширенного AI-разбора (добавлен для будущей интеграции) */
+  email?: string
   source: LeadSource
   roast_source?: string
   objection_titles?: string[]
@@ -31,6 +34,7 @@ export function buildTelegramLeadMessage(payload: LeadPayload): string {
     `Имя: ${payload.name}`,
     `Контакт: ${payload.contact}`,
   ]
+  if (payload.email) lines.push(`Email: ${payload.email}`)
   if (payload.source === 'ai_roaster') {
     lines.push('Источник: AI-прожарка')
   }

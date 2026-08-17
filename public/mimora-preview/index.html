@@ -1236,7 +1236,10 @@ body>*:not(.nav-wrap):not(#hero):not(.hero){display:none!important}
       });
     }
 
+    var inSummary = false;
+
     function cycle() {
+      if (inSummary) return;
       var visible = [];
       REGIONS.forEach(function (region, i) {
         var el = document.querySelector(region.sel);
@@ -1248,7 +1251,21 @@ body>*:not(.nav-wrap):not(#hero):not(.hero){display:none!important}
       });
       if (!visible.length) return;
       var idx = visible.indexOf(active);
-      active = visible[(idx + 1) % visible.length];
+      var nextIdx = (idx + 1) % visible.length;
+      /* Если следующий шаг — это возврат к началу цикла, сначала показываем summary */
+      if (nextIdx === 0 && idx !== 0) {
+        inSummary = true;
+        try { parent.postMessage({ source: 'maydi-scan', id: 'summary' }, '*'); } catch (e) {}
+        root.innerHTML = '';
+        setTimeout(function () {
+          inSummary = false;
+          active = visible[0];
+          ping(REGIONS[active].id);
+          draw();
+        }, 2800);
+        return;
+      }
+      active = visible[nextIdx];
       ping(REGIONS[active].id);
       draw();
     }

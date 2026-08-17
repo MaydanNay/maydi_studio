@@ -145,7 +145,7 @@ body {
   }
 }
 
-/* Custom cross cursor — desktop only */
+/* Custom cross cursor - desktop only */
 @media (pointer: fine) {
   html,
   html * {
@@ -339,7 +339,7 @@ html[data-hero-probe] .site-cursor {
   background: #888;
 }
 
-/* Header — invert over media, blur is a separate layer */
+/* Header - invert over media, blur is a separate layer */
 .site-header-invert {
   z-index: 50;
   mix-blend-mode: difference;
@@ -354,7 +354,7 @@ html[data-hero-probe] .site-cursor {
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 100%);
 }
 
-/* Hero — ULTRACOMBOS-style fluid + agent vision */
+/* Hero - ULTRACOMBOS-style fluid + agent vision */
 .hero-agent {
   background: #1a1a1a;
 }

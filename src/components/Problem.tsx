@@ -32,8 +32,8 @@ export function Problem() {
               className="flex w-[11rem] shrink-0 flex-col gap-1 text-left font-sans text-[10px] font-medium uppercase leading-[1.45] tracking-[0.06em] text-[#111111] sm:w-[13rem] md:w-[15.5rem] md:text-[12px]"
             >
               <span>Вы платите за сайт и креативы, не зная реакции ЛПР.</span>
-              <span>A/B на трафике — недели.</span>
-              <span>Реклама уходит в молоко.</span>
+              <span>A/B-тесты на живом трафике - это недели и слитый бюджет.</span>
+              <span>Реклама уходит в молоко, а решение принимает рынок - только постфактум.</span>
             </FadeUp>
             <LineReveal delay={0.34}>заявки</LineReveal>
           </span>

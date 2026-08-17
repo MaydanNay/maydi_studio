@@ -47,7 +47,7 @@ const LoopVideo = forwardRef<HTMLVideoElement, { className?: string }>(
       const start = () => {
         if (cancelled) return
         video.playbackRate = 1
-        void video.play().catch(() => {})
+        void video.play().catch(() => { })
         raf = requestAnimationFrame(tick)
       }
 
@@ -122,13 +122,29 @@ export function Hero({ onBookCall: _onBookCall }: HeroProps) {
                 Maydi Studio
               </p>
             </FadeUp>
-            <p className="max-w-[36rem] font-sans text-[13px] font-medium uppercase leading-[1.85] tracking-[0.06em] text-[#111111] md:text-[15px]">
-              <WordReveal
-                text="Мы собираем сайты, воронки и креативы для B2B. Каждую гипотезу тестируем на синтетической ЦА в AI-симуляции mimora — до запуска трафика. Вы работаете напрямую с фаундерами, без агентской прослойки."
-                delay={0.1}
-                stagger={0.025}
-              />
-            </p>
+            <div className="max-w-[36rem] space-y-5 font-sans text-[13px] font-medium uppercase leading-[1.85] tracking-[0.06em] text-[#111111] md:text-[15px]">
+              <p>
+                <WordReveal
+                  text="Разрабатываем сайты, платформы и воронки для бизнеса со сложным циклом продажи и чеком от 1 млн ₸."
+                  delay={0.1}
+                  stagger={0.025}
+                />
+              </p>
+              <p>
+                <WordReveal
+                  text="Каждую гипотезу - от интерфейса до креатива - тестируем на AI-респондентах в AI-симуляции mimora, до запуска трафика."
+                  delay={0.28}
+                  stagger={0.025}
+                />
+              </p>
+              <p>
+                <WordReveal
+                  text="Вы работаете напрямую с фаундерами, без агентской прослойки."
+                  delay={0.5}
+                  stagger={0.025}
+                />
+              </p>
+            </div>
             <FadeUp delay={0.45} y={10}>
               <span className="mt-12 inline-block h-2 w-2 rounded-full bg-black" aria-hidden />
             </FadeUp>

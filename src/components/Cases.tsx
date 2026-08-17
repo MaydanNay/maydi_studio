@@ -57,10 +57,10 @@ export function Cases() {
         <header className="mb-10 flex items-end justify-between gap-6 pr-5 md:mb-14 md:pr-8">
           <h2 className="w-[50vw] pl-5 font-sans text-[clamp(1.6rem,4.2vw,3.15rem)] font-medium uppercase leading-[1.05] tracking-[0.04em] text-[#111111] md:pl-8">
             <LineReveal delay={0.05} className="block">
-              Последние
+              Что мы
             </LineReveal>
             <LineReveal delay={0.14} className="block w-full text-right">
-              проекты
+              построили
             </LineReveal>
           </h2>
           <FadeUp delay={0.22} y={8}>
